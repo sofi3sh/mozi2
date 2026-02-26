@@ -72,6 +72,7 @@ type OrderRow = {
   deliverAt?: string | null;
   deliveryAddress?: any | null;
   createdAt: string;
+  items: any[];
 };
 
 function Section({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
@@ -130,6 +131,45 @@ export default function OrdersTable({ cityId }: { cityId: string }) {
 
   const columns = useMemo<Column<OrderRow>[]>(() => {
     return [
+      {
+        key: "items",
+        header: "Товари",
+        width: 90,
+        sortable: true,
+        sortValue: (r) => r.items.map((i) => i.name).join(", "),
+        cell: (r) => <div style={{ fontWeight: 950 }}>
+        {r.items?.map((item: any, idx: number) => (
+              <div key={idx} style={{ borderBottom: "1px solid #eee", paddingBottom: 8 }}>
+
+                {/* Назва + кількість */}
+                <div style={{ fontWeight: 950 }}>
+                  Страва: {item.name}
+                </div>
+                <div>
+                  Кількість: {item.qty}
+                </div>
+
+                {/* selections */}
+                <div style={{ marginTop: 6 }}>
+                  Варіації та інгредієнти:
+                  {item.selections?.map((sel: any, sIdx: number) => (
+                    <div key={sIdx} style={{ marginLeft: 10, fontSize: 13 }}>
+                      <div>
+                        група: {sel.groupTitle.replace("VAR:: ", "")}
+                      </div>
+                      <div>
+                        Назва : {sel.optionTitles?.join(", ")}
+                      </div>
+                      <div>
+                        Ціна : {sel.priceDeltaSum}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+        </div>,    
+      },
       {
         key: "number",
         header: "№",

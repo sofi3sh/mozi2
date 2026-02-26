@@ -1,0 +1,27 @@
+-- Roles & users (admin) tables
+
+CREATE TABLE IF NOT EXISTS `AppRole` (
+  `key` VARCHAR(191) NOT NULL,
+  `title` VARCHAR(191) NOT NULL,
+  `permissions` JSON NOT NULL,
+  `isSystem` BOOLEAN NOT NULL DEFAULT false,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`key`),
+  INDEX `AppRole_isSystem_idx` (`isSystem`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `AppUser` (
+  `id` VARCHAR(191) NOT NULL,
+  `name` VARCHAR(191) NOT NULL,
+  `email` VARCHAR(191) NOT NULL,
+  `passwordHash` LONGTEXT NULL,
+  `role` VARCHAR(191) NOT NULL,
+  `cityIds` JSON NOT NULL,
+  `isActive` BOOLEAN NOT NULL DEFAULT true,
+  `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+  `updatedAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3),
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `AppUser_email_key` (`email`),
+  INDEX `AppUser_role_idx` (`role`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;

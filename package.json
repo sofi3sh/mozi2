@@ -1,0 +1,44 @@
+{
+  "name": "admin-panel-starter",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "postinstall": "prisma generate",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next dev -H 127.1.4.172 -p 3000",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma db push",
+    "db:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed",
+    "db:studio": "prisma studio",
+    "db:push": "prisma db push",
+    "i18n:deepl": "node scripts/deepl-i18n-sync.mjs both",
+    "i18n:deepl:ua2ru": "node scripts/deepl-i18n-sync.mjs ua2ru",
+    "i18n:deepl:ru2ua": "node scripts/deepl-i18n-sync.mjs ru2ua"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.19.1",
+    "next": "^14.2.5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.2.74",
+    "@types/react-dom": "^18.2.24",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.5",
+    "prisma": "^5.19.1",
+    "typescript": "^5.4.5"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.mjs"
+  }
+}

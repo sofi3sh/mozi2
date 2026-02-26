@@ -1,0 +1,231 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model City {
+  id        String   @id
+  name      String
+  photoUrl  String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  venues    Venue[]
+}
+
+model CatalogItem {
+  id        String   @id @default(cuid())
+  kind      String   // "venueType" | "cuisineType"
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([kind])
+  @@unique([kind, name])
+}
+
+model Venue {
+  id            String   @id @default(cuid())
+  cityId        String
+  name          String
+  description   String   @db.Text
+  address       String?  @db.Text
+  deliveryMinutes Int    @default(50)
+  slug          String
+  photoUrl      String?  @db.Text
+  venueTypeIds  Json
+  cuisineTypeIds Json
+  schedule      Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  city          City     @relation(fields: [cityId], references: [id], onDelete: Cascade)
+
+  categories    MenuCategory[]
+  dishes        Dish[]
+  modifierGroups ModifierGroup[]
+  orders        Order[]
+
+  @@index([cityId])
+  @@unique([cityId, slug])
+}
+
+model MenuCategory {
+  id        String   @id @default(cuid())
+  cityId    String
+  venueId   String
+  name      String
+  sort      Int      @default(0)
+  photoUrl  String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  venue     Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  @@index([cityId, venueId])
+}
+
+model Dish {
+  id              String   @id @default(cuid())
+  cityId          String
+  venueId         String
+  categoryId      String
+  name            String
+  description     String   @db.Text
+  price           Int
+  photoUrl        String?  @db.Text
+  isStopped       Boolean  @default(false)
+  modifierGroupIds Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  venue           Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  @@index([cityId, venueId])
+  @@index([categoryId])
+}
+
+model ModifierGroup {
+  id        String   @id @default(cuid())
+  cityId    String
+  venueId   String
+  title     String
+  required  Boolean  @default(false)
+  minSelect Int      @default(0)
+  maxSelect Int      @default(1)
+  options   Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  venue     Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  @@index([cityId, venueId])
+}
+
+model Customer {
+  id        String   @id @default(cuid())
+  cityId    String
+  name      String
+  phone     String?  @db.VarChar(64)
+  email     String?  @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders    Order[]
+
+  @@index([cityId])
+}
+
+model Payment {
+  id              String   @id @default(cuid())
+  cityId           String
+  provider         String
+  currency         String   @default("UAH") @db.VarChar(8)
+  amount           Int
+  status           String   // "pending" | "paid" | "failed"
+  providerPayload  Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  orders           Order[]
+
+  @@index([cityId])
+  @@index([status])
+}
+
+model Order {
+  id              String   @id @default(cuid())
+  number          Int
+  cityId          String
+  venueId         String
+  customerId      String
+  paymentId       String?
+  total           Int
+  status          String
+  paymentStatus   String   @default("paid") @db.VarChar(16)
+  paymentProvider String?  @db.VarChar(32)
+  deliveryMode    String   @default("asap") @db.VarChar(16)
+  deliverAt       DateTime @default(now())
+  deliveryAddress Json?
+  items           Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  venue           Venue     @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  customer        Customer  @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  payment         Payment?  @relation(fields: [paymentId], references: [id], onDelete: SetNull)
+
+  @@index([cityId])
+  @@index([venueId])
+  @@index([customerId])
+  @@index([paymentId])
+  @@unique([cityId, number])
+}
+
+
+model AppUser {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  passwordHash String? @db.Text
+  role      String
+  cityIds   Json
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AppRole {
+  /// Stable role identifier used in AppUser.role
+  key         String   @id
+  /// Human-friendly title for UI
+  title       String
+  /// Permissions payload: { nav: string[] }
+  permissions Json
+  /// System roles cannot be deleted/renamed by UI
+  isSystem    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isSystem])
+}
+
+model Setting {
+  id        String   @id @default(cuid())
+  scope     String   // "global" | "city"
+  cityId    String?
+  key       String
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([scope, cityId])
+  @@unique([scope, cityId, key])
+}
+
+model SeoEntry {
+  id          String   @id @default(cuid())
+  cityId      String   // allows "global"
+  pageKey     String
+  lang        String   // "ua" | "ru"
+  metaTitle   String
+  metaDescription String? @db.Text
+  metaKeywords    String? @db.Text
+  ogTitle     String?
+  ogDescription String? @db.Text
+  ogImage     String? @db.Text
+  canonical   String? @db.Text
+  robotsIndex Boolean  @default(true)
+  robotsFollow Boolean @default(true)
+  bottomText  String? @db.Text
+  bottomStyle Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([cityId, pageKey])
+  @@unique([cityId, pageKey, lang])
+}

@@ -551,12 +551,15 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
                           <div className="dishMeta">
                             <div className="dishTitle">{d.name}</div>
                             <div className="dishDesc">{d.description || t("dish_desc_fallback")}</div>
+                            {varGroups.length ?  null : (
                             <div className="dishPrice">
                               <Money value={d.price} />
                             </div>
+                            )}
                           </div>
 
                           <div className="dishActions">
+                          {varGroups.length ?  null : (
                             <div className="dishActionsRow">
                               <QtyControl
                                 value={q || 1}
@@ -577,9 +580,11 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
                               >
                                 +
                               </button>
+                              
                             </div>
+                            )}
 
-                            {hasIngredients ? (
+                            {hasIngredients && !varGroups.length ?  (
                               <button
                                 type="button"
                                 onClick={() => {

@@ -790,7 +790,7 @@ button, input, select, textarea { font: inherit; }
   .ingModalPhotoWrap{ justify-self: start; }
 }
 
-.ingModalTitle{ font-family: ui-serif, Georgia, Times New Roman, serif; font-weight: 950; font-size: 22px; letter-spacing: -0.02em; }
+.ingModalTitle{ font-family: ui-sans-serif, Arial, Helvetica, sans-serif; font-weight: 950; font-size: 22px; letter-spacing: -0.02em; }
 .ingModalDesc{ margin-top: 6px; font-weight: 750; font-size: 13px; color: rgba(31,41,55,0.72); line-height: 1.35; }
 .ingModalPriceRow{ margin-top: 12px; display:flex; align-items: baseline; gap: 10px; }
 .ingModalPrice{ font-weight: 950; font-size: 18px; }

@@ -363,7 +363,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
           <div
             style={{
               marginTop: 10,
-              fontFamily: "ui-serif, Georgia, Times New Roman, serif",
+              fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif",
               fontWeight: 900,
               letterSpacing: "-0.02em",
               fontSize: 64,
@@ -475,7 +475,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
       {/* Menu */}
       <main className="sitePage" style={{ paddingBottom: 22 }}>
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "end", flexWrap: "wrap" }}>
-          <div style={{ fontFamily: "ui-serif, Georgia, Times New Roman, serif", fontWeight: 900, fontSize: 40, letterSpacing: "-0.02em" }}>
+          <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 900, fontSize: 40, letterSpacing: "-0.02em" }}>
             {t('menu')}
           </div>
 
@@ -527,7 +527,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
               <section key={c.id}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
 
-                  <div style={{ fontFamily: "ui-serif, Georgia, Times New Roman, serif", fontWeight: 900, fontSize: 34, letterSpacing: "-0.02em" }}>
+                  <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 900, fontSize: 34, letterSpacing: "-0.02em" }}>
                     {c.name}
                   </div>
                 </div>

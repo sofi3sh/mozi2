@@ -6,7 +6,7 @@ import { useSeo, SeoLang } from "@/store/seo";
 
 const fontMap = {
   sans: "ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial",
-  serif: "ui-serif, Georgia, Times New Roman, serif",
+  serif: "ui-sans-serif, Arial, Helvetica, sans-serif",
   mono: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, monospace",
 };
 

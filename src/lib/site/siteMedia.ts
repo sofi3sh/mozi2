@@ -34,7 +34,7 @@ export function cityHeroBg(cityName: string) {
       <circle cx="1180" cy="260" r="240" fill="#d7c4ae"/>
     </g>
     <rect width="1600" height="520" fill="url(#h)"/>
-    <text x="70" y="430" font-family="ui-serif, Georgia, Times New Roman, serif" font-weight="900" font-size="140" fill="rgba(17,24,39,0.08)">${cityName}</text>
+    <text x="70" y="430" font-family="ui-sans-serif, Arial, Helvetica, sans-serif" font-weight="900" font-size="140" fill="rgba(17,24,39,0.08)">${cityName}</text>
   </svg>`;
   return svgDataUri(svg);
 }
@@ -63,7 +63,7 @@ export function categoryCover(title: string) {
       <circle cx="760" cy="220" r="200" fill="#d7c4ae"/>
     </g>
     <rect width="900" height="300" rx="36" ry="36" fill="url(#o)"/>
-    <text x="52" y="186" font-family="ui-serif, Georgia, Times New Roman, serif" font-weight="900" font-size="54" fill="rgba(255,255,255,0.92)">${t}</text>
+    <text x="52" y="186" font-family="ui-sans-serif, Arial, Helvetica, sans-serif" font-weight="900" font-size="54" fill="rgba(255,255,255,0.92)">${t}</text>
   </svg>`;
   return svgDataUri(svg);
 }
@@ -93,7 +93,7 @@ export function venueCover(name: string) {
       <circle cx="760" cy="320" r="240" fill="#b9a38a"/>
     </g>
     <rect width="900" height="520" fill="url(#o)"/>
-    <text x="44" y="475" font-family="ui-serif, Georgia, Times New Roman, serif" font-weight="900" font-size="58" fill="rgba(255,255,255,0.18)">${t}</text>
+    <text x="44" y="475" font-family="ui-sans-serif, Arial, Helvetica, sans-serif" font-weight="900" font-size="58" fill="rgba(255,255,255,0.18)">${t}</text>
   </svg>`;
   return svgDataUri(svg);
 }

@@ -49,7 +49,7 @@ export default function SiteStaticPage({
       />
 
       <main className="sitePageNarrow">
-        <div style={{ fontSize: 34, fontWeight: 950, letterSpacing: "-0.03em", fontFamily: "ui-serif, Georgia, Times New Roman, serif" }}>
+        <div style={{ fontSize: 34, fontWeight: 950, letterSpacing: "-0.03em", fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif" }}>
           {displayTitle}
         </div>
         <div style={{ marginTop: 10, opacity: 0.72, fontWeight: 750, lineHeight: 1.7 }}>

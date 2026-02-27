@@ -163,10 +163,10 @@ export default function SiteCategories() {
 <SeoFab lang={lang} cityId={cityId || "global"} pageKey="categories" hint={t("categories")} />
       <SiteHeader cities={cities} selectedCityId={cityId} onSelectCity={onSelectCity} />
 
-      {/* Hero */}
+      {/* Hero  height: 310, */}
       <section
         style={{
-          height: 310,
+          height: "clamp(190px, 24vw, 280px)",
           borderBottom: "1px solid rgba(31,41,55,0.08)",
           backgroundImage: `url(${city.photoUrl?.trim() ? city.photoUrl : cityHeroBg(city.name)})`,
           backgroundSize: "cover",
@@ -183,7 +183,7 @@ export default function SiteCategories() {
           <div
             style={{
               marginTop: 18,
-              fontFamily: "ui-serif, Georgia, Times New Roman, serif",
+              fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif",
               fontWeight: 900,
               letterSpacing: "-0.02em",
               fontSize: "clamp(40px, 7.5vw, 70px)",
@@ -208,7 +208,7 @@ export default function SiteCategories() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 14, flexWrap: "wrap" }}>
             <div
               style={{
-                fontFamily: "ui-serif, Georgia, Times New Roman, serif",
+                fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif",
                 fontWeight: 900,
                 fontSize: "clamp(28px, 6vw, 44px)",
                 letterSpacing: "-0.02em",
@@ -292,7 +292,7 @@ export default function SiteCategories() {
                       <div
                         style={{
                           marginTop: 6,
-                          fontFamily: "ui-serif, Georgia, Times New Roman, serif",
+                          fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif",
                           fontWeight: 900,
                           fontSize: "clamp(22px, 6vw, 30px)",
                           lineHeight: 1.05,
@@ -352,7 +352,7 @@ export default function SiteCategories() {
             <div>
               <div
                 style={{
-                  fontFamily: "ui-serif, Georgia, Times New Roman, serif",
+                  fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif",
                   fontWeight: 900,
                   fontSize: 46,
                   letterSpacing: "-0.02em",
@@ -482,7 +482,7 @@ export default function SiteCategories() {
                   </div>
 
                   <div style={{ padding: "18px 18px 16px" }}>
-                    <div style={{ fontFamily: "ui-serif, Georgia, Times New Roman, serif", fontWeight: 900, fontSize: 28, letterSpacing: "-0.01em" }}>
+                    <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 900, fontSize: 28, letterSpacing: "-0.01em" }}>
                       {v.name}
                     </div>
 

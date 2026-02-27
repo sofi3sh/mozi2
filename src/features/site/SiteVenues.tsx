@@ -263,7 +263,7 @@ export default function SiteVenues() {
           <div
             style={{
               marginTop: 18,
-              fontFamily: "ui-serif, Georgia, Times New Roman, serif",
+              fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif",
               fontWeight: 900,
               letterSpacing: "-0.02em",
               fontSize: "clamp(34px, 7vw, 64px)",
@@ -318,7 +318,7 @@ export default function SiteVenues() {
               height: "fit-content",
             }}
           >
-            <div style={{ fontFamily: "ui-serif, Georgia, Times New Roman, serif", fontWeight: 900, fontSize: 28, letterSpacing: "-0.02em" }}>
+            <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 900, fontSize: 28, letterSpacing: "-0.02em" }}>
               {t('filters')}
             </div>
 
@@ -499,7 +499,7 @@ export default function SiteVenues() {
                   </div>
 
                   <div style={{ padding: "18px 18px 16px" }}>
-                    <div style={{ fontFamily: "ui-serif, Georgia, Times New Roman, serif", fontWeight: 900, fontSize: 28, letterSpacing: "-0.01em" }}>
+                    <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 900, fontSize: 28, letterSpacing: "-0.01em" }}>
                       {v.name}
                     </div>
 
@@ -534,7 +534,7 @@ export default function SiteVenues() {
           <div className="siteSheetOverlay" role="dialog" aria-modal="true" aria-label={t("filters")} onClick={() => setFiltersOpen(false)}>
             <div className="siteSheet" onClick={(e) => e.stopPropagation()}>
               <div className="siteSheetHeader">
-                <div style={{ fontFamily: "ui-serif, Georgia, Times New Roman, serif", fontWeight: 950, fontSize: 22, letterSpacing: "-0.02em" }}>
+                <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 950, fontSize: 22, letterSpacing: "-0.02em" }}>
                   {t("filters")}
                 </div>
                 <button type="button" className="siteSheetClose" onClick={() => setFiltersOpen(false)} aria-label={lang === "ru" ? "Закрыть" : "Закрити"}>

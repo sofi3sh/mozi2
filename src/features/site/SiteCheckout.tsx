@@ -416,7 +416,7 @@ export default function SiteCheckout() {
         >
           <div
             style={{
-              fontFamily: "ui-serif, Georgia, Times New Roman, serif",
+              fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif",
               fontWeight: 900,
               fontSize: 44,
               letterSpacing: "-0.02em",
@@ -536,7 +536,7 @@ export default function SiteCheckout() {
                         onClick={() => ensureAllDelivery("asap")}
                         style={{ opacity: asapDisabled ? 0.55 : 1 }}
                       >
-                        {lang === "ru" ? "Как можно быстрее" : "Якнайшвидше"}
+                        {lang === "ru" ? "Как можно быстрее" : "Як найшвидше"}
                       </button>
 
                       <button
@@ -658,9 +658,17 @@ export default function SiteCheckout() {
                     <SecondaryButton type="button" onClick={() => router.push(`/${lang}/cart?city=${encodeURIComponent(cityId)}`)} style={{ borderRadius: 999, padding: "10px 14px", color: "#000000" }}>
                       {lang === "ru" ? "Вернуться в корзину" : "Повернутись у кошик"}
                     </SecondaryButton>
-                    <SecondaryButton type="button" onClick={submit} disabled={submitting} style={{ borderRadius: 999, padding: "10px 16px", color: "#000000" }}>
+                    <Button type="button" onClick={submit} disabled={submitting} style={{ 
+                      padding: "10px 14px",
+                      borderRadius: 999,
+                      border: "1px solid rgba(230,162,74,0.70)",
+                      background: "rgba(230,162,74,0.18)",
+                      fontWeight: 950,
+                      textDecoration: "none", 
+                      color: "#000000",
+                      }}>
                       {submitting ? (lang === "ru" ? "Оформляем..." : "Оформлюємо...") : lang === "ru" ? "Оформить заказ" : "Оформити замовлення"}
-                    </SecondaryButton>
+                    </Button>
                   </div>
 
                  {/* 

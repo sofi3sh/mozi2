@@ -123,7 +123,7 @@ export default function SiteCart() {
       <>
         <SiteHeader cities={cities} selectedCityId={cityId} onSelectCity={onSelectCity} />
         <main className="sitePage">
-          <div style={{ fontFamily: "ui-serif, Georgia, Times New Roman, serif", fontWeight: 900, fontSize: 44, letterSpacing: "-0.02em" }}>
+          <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 900, fontSize: 44, letterSpacing: "-0.02em" }}>
             {t("cart")}
           </div>
           <div style={{ marginTop: 16, opacity: 0.72, fontWeight: 800 }}>{lang === "ru" ? "Загрузка корзины..." : "Завантаження кошика..."}</div>
@@ -144,7 +144,7 @@ export default function SiteCart() {
 
       <main className="sitePage">
         <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "end", flexWrap: "wrap" }}>
-          <div style={{ fontFamily: "ui-serif, Georgia, Times New Roman, serif", fontWeight: 900, fontSize: 44, letterSpacing: "-0.02em" }}>
+          <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 900, fontSize: 44, letterSpacing: "-0.02em" }}>
             {t("cart")}
           </div>
 
@@ -289,7 +289,7 @@ export default function SiteCart() {
                     ))}
                   </div>
 
-                  <div style={{ marginTop: 12, opacity: 0.75, fontWeight: 750 }}>
+                  <div style={{ marginTop: 12,  fontWeight: 750 }}>
                     <Link
                       href={`/${lang}/checkout?city=${encodeURIComponent(cityId)}`}
                       style={{
@@ -302,6 +302,7 @@ export default function SiteCart() {
                         background: "rgba(230,162,74,0.18)",
                         fontWeight: 950,
                         textDecoration: "none",
+                        color: "#000000",
                       }}
                     >
                       {lang === "ru" ? "Перейти к оформлению" : "Перейти до оформлення"}

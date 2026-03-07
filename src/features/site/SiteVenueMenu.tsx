@@ -301,7 +301,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
             {t('check_city_link')}
           </div>
           <div style={{ marginTop: 18 }}>
-            <Link href={`/${lang}/venues?city=${encodeURIComponent(cityId)}`} style={{ textDecoration: "underline" }}>
+            <Link href={`/${lang}/venues`} style={{ textDecoration: "underline" }}>
               {t('back_to_venues')}
             </Link>
           </div>
@@ -344,14 +344,14 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
         <div className="siteContainer" style={{ position: "relative", paddingTop: 28, paddingBottom: 28 }}>
           <div style={{ fontSize: 14, color: "rgba(255,255,255,0.82)", fontWeight: 800 }}>
             <Link
-              href={cityId ? `/${lang}/categories?city=${encodeURIComponent(cityId)}` : "/categories"}
+              href={`/${lang}/categories`}
               style={{ textDecoration: "none", color: "rgba(255,255,255,0.86)" }}
             >
               {t('home')}
             </Link>
             <span style={{ opacity: 0.6 }}> / </span>
             <Link
-              href={`/${lang}/categories?city=${encodeURIComponent(cityId)}`}
+              href={`/${lang}/categories`}
               style={{ textDecoration: "none", color: "rgba(255,255,255,0.86)" }}
             >
               {city.name}

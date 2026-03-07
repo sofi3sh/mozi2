@@ -127,15 +127,21 @@ export default function SiteCategories() {
     // Якщо увімкнені піддомени — setCurrentCityId зробить редірект.
     if (subdomainsEnabled && rootDomain && typeof window !== "undefined") return;
 
-    router.push(`/${lang}/categories?city=${encodeURIComponent(id)}`);
+    router.push(`/${lang}/categories`);
   }
 
   function onPickVenueType(id: string) {
     // При натисканні відкриваємо сторінку "Заклади" з уже обраним типом закладу.
     const next = selectedVenueTypeId === id ? "" : id;
-    const url = next
-      ? `/${lang}/venues?city=${encodeURIComponent(cityId)}&venueTypes=${encodeURIComponent(next)}`
-      : `/${lang}/venues?city=${encodeURIComponent(cityId)}`;
+    const segments: string[] = [];
+    if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
+    if (next) {
+      const token = next.replace(/^vt_/, "");
+      if (token) segments.push(`venueTypes-${token}`);
+    }
+    const hashValue = segments.join("-");
+    const basePath = `/${lang}/venues`;
+    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
     router.push(url);
   }
 
@@ -149,7 +155,7 @@ export default function SiteCategories() {
             {t('choose_city_hint')}
           </div>
           <div style={{ marginTop: 18 }}>
-            <Link href={cityId ? `/${lang}/categories?city=${encodeURIComponent(cityId)}` : "/categories"} style={{ textDecoration: "underline" }}>{t('back_home')}</Link>
+            <Link href={`/${lang}/categories`} style={{ textDecoration: "underline" }}>{t('back_home')}</Link>
           </div>
         </main>
         <SeoBottomText lang={lang} cityId={cityId || "global"} pageKey="categories" />
@@ -175,7 +181,7 @@ export default function SiteCategories() {
       >
         <div className="sitePage">
           <div style={{ fontSize: 14, opacity: 0.7, fontWeight: 800 }}>
-            <Link href={cityId ? `/${lang}/categories?city=${encodeURIComponent(cityId)}` : "/categories"} style={{ textDecoration: "none", opacity: 0.85 }}>{t('home')}</Link>
+            <Link href={`/${lang}/categories`} style={{ textDecoration: "none", opacity: 0.85 }}>{t('home')}</Link>
             <span style={{ opacity: 0.5 }}> / </span>
             <span style={{ opacity: 0.95 }}>{city.name}</span>
           </div>
@@ -218,7 +224,7 @@ export default function SiteCategories() {
             </div>
 
             <Link
-              href={`/${lang}/venues?city=${encodeURIComponent(cityId)}`}
+              href={`/${lang}/venues`}
               style={{
                 color: "#e6a24a",
                 fontWeight: 950,

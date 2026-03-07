@@ -27,12 +27,12 @@ export default function SeoPage({ params }: any) {
 
   const links = useMemo(
     () => [
-      { label: "Головна (SEO режим)", href: `/ua?seo=1&city=${encodeURIComponent(cityId)}` },
-      { label: "Категорії (SEO режим)", href: `/ua/categories?city=${encodeURIComponent(cityId)}&seo=1` },
-      { label: "Заклади (SEO режим)", href: `/ua/venues?city=${encodeURIComponent(cityId)}&seo=1` },
-      { label: "Про нас (SEO режим)", href: `/ua/about?city=${encodeURIComponent(cityId)}&seo=1` },
-      { label: "Контакти (SEO режим)", href: `/ua/contacts?city=${encodeURIComponent(cityId)}&seo=1` },
-      { label: "Угода (SEO режим)", href: `/ua/terms?city=${encodeURIComponent(cityId)}&seo=1` },
+      { label: "Головна (SEO режим)", href: `/ua?seo=1#city-${encodeURIComponent(cityId)}` },
+      { label: "Категорії (SEO режим)", href: `/ua/categories?seo=1#city-${encodeURIComponent(cityId)}` },
+      { label: "Заклади (SEO режим)", href: `/ua/venues?seo=1#city-${encodeURIComponent(cityId)}` },
+      { label: "Про нас (SEO режим)", href: `/ua/about?seo=1#city-${encodeURIComponent(cityId)}` },
+      { label: "Контакти (SEO режим)", href: `/ua/contacts?seo=1#city-${encodeURIComponent(cityId)}` },
+      { label: "Угода (SEO режим)", href: `/ua/terms?seo=1#city-${encodeURIComponent(cityId)}` },
     ],
     [cityId]
   );

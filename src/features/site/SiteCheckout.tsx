@@ -295,7 +295,7 @@ export default function SiteCheckout() {
             {t("choose_city_hint")}
           </div>
           <div style={{ marginTop: 18 }}>
-            <Link href={cityId ? `/categories?city=${encodeURIComponent(cityId)}` : `/${lang}/categories`} style={{ textDecoration: "underline" }}>
+            <Link href={`/${lang}/categories`} style={{ textDecoration: "underline" }}>
               {t("back_home")}
             </Link>
           </div>
@@ -430,7 +430,7 @@ export default function SiteCheckout() {
             {title}
           </div>
           <Link
-            href={`/${lang}/cart?city=${encodeURIComponent(cityId)}`}
+            href={`/${lang}/cart`}
             style={{ textDecoration: "none", fontWeight: 950, opacity: 0.85 }}
           >
             {lang === "ru" ? "← Вернуться в корзину" : "← Повернутись у кошик"}
@@ -449,7 +449,7 @@ export default function SiteCheckout() {
           >
             <div style={{ fontWeight: 950 }}>{t("cart_empty_short")}</div>
             <div style={{ marginTop: 10 }}>
-              <Link href={`/${lang}/venues?city=${encodeURIComponent(cityId)}`} style={{ textDecoration: "underline" }}>
+              <Link href={`/${lang}/venues`} style={{ textDecoration: "underline" }}>
                 {lang === "ru" ? "Выбрать заведения" : "Обрати заклади"}
               </Link>
             </div>
@@ -660,7 +660,7 @@ export default function SiteCheckout() {
                   </div>
 
                   <div style={{ marginTop: 12 }} className="ui-actions">
-                    <SecondaryButton type="button" onClick={() => router.push(`/${lang}/cart?city=${encodeURIComponent(cityId)}`)} style={{ borderRadius: 999, padding: "10px 14px", color: "#000000" }}>
+                    <SecondaryButton type="button" onClick={() => router.push(`/${lang}/cart`)} style={{ borderRadius: 999, padding: "10px 14px", color: "#000000" }}>
                       {lang === "ru" ? "Вернуться в корзину" : "Повернутись у кошик"}
                     </SecondaryButton>
                     <Button type="button" onClick={submit} disabled={submitting} style={{ 

@@ -39,8 +39,7 @@ export default function SiteMobileCartBar() {
   if (count <= 0) return null;
 
   const total = cityTotal(cityId);
-  const useQueryCity = !(subdomainsEnabled && rootDomain);
-  const cartHref = `/${lang}/cart${useQueryCity && cityId ? `?city=${encodeURIComponent(cityId)}` : ""}`;
+  const cartHref = `/${lang}/cart`;
 
   return (
     <>

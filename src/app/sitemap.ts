@@ -103,11 +103,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
   }
 
-  // City-specific list pages (for deployments without subdomains)
+  // City-specific list pages (for deployments без піддоменів) — без query (?city=...),
+  // щоб уникати "брудних" URL у sitemap.
   for (const c of cities) {
     for (const lang of SUPPORTED) {
       items.push({
-        url: `${base}${localizePath("/categories", lang)}?city=${encodeURIComponent(c.id)}`,
+        url: `${base}${localizePath("/categories", lang)}`,
         lastModified: c.updatedAt || now,
         changeFrequency: "daily",
         priority: 0.8,
@@ -115,7 +116,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       } as any);
 
       items.push({
-        url: `${base}${localizePath("/venues", lang)}?city=${encodeURIComponent(c.id)}`,
+        url: `${base}${localizePath("/venues", lang)}`,
         lastModified: c.updatedAt || now,
         changeFrequency: "daily",
         priority: 0.8,

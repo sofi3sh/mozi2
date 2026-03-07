@@ -28,13 +28,9 @@ export default function SiteHeader({
   const { itemCount } = useCart();
   const cartCount = itemCount(selectedCityId);
 
-  const useQueryCity = !(subdomainsEnabled && rootDomain);
-  const categoriesBase = `/${lang}/categories`;
-  const categoriesHref = useQueryCity && selectedCityId ? `${categoriesBase}?city=${encodeURIComponent(selectedCityId)}` : categoriesBase;
-  const venuesBase = `/${lang}/venues`;
-  const venuesHref = useQueryCity && selectedCityId ? `${venuesBase}?city=${encodeURIComponent(selectedCityId)}` : venuesBase;
-
-  const cartHref = `/${lang}/cart${useQueryCity && selectedCityId ? `?city=${encodeURIComponent(selectedCityId)}` : ""}`;
+  const categoriesHref = `/${lang}/categories`;
+  const venuesHref = `/${lang}/venues`;
+  const cartHref = `/${lang}/cart`;
 
   function closeMobile() {
     setMobileOpen(false);

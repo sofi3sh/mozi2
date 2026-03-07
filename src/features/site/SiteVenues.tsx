@@ -318,7 +318,7 @@ export default function SiteVenues() {
           <div style={{ fontSize: 26, fontWeight: 950, letterSpacing: "-0.03em" }}>{t("choose_city")}</div>
           <div style={{ marginTop: 10, opacity: 0.72, fontWeight: 700 }}>{t("choose_city_hint")}</div>
           <div style={{ marginTop: 18 }}>
-            <Link href={cityId ? `/${lang}/categories?city=${encodeURIComponent(cityId)}` : "/categories"} style={{ textDecoration: "underline" }}>
+            <Link href={`/${lang}/categories`} style={{ textDecoration: "underline" }}>
               {t("back_home")}
             </Link>
           </div>
@@ -345,7 +345,7 @@ export default function SiteVenues() {
       >
         <div className="sitePage" style={{ paddingTop: 44, paddingBottom: 36 }}>
           <div style={{ fontSize: 14, opacity: 0.7, fontWeight: 800 }}>
-            <Link href={cityId ? `/${lang}/categories?city=${encodeURIComponent(cityId)}` : "/categories"} style={{ textDecoration: "none", opacity: 0.85 }}>
+            <Link href={`/${lang}/categories`} style={{ textDecoration: "none", opacity: 0.85 }}>
               {t('home')}
             </Link>
             <span style={{ opacity: 0.5 }}> / </span>

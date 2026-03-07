@@ -168,14 +168,14 @@ export default function SiteCheckoutSuccess() {
 
           <div className={`${styles.actions} ${styles.fade3}`}>
             <Link
-              href={cityId ? `/${lang}/venues?city=${encodeURIComponent(cityId)}` : `/${lang}/venues`}
+              href={`/${lang}/venues`}
               className={`${styles.btn} ${styles.btnPrimary}`}
             >
               {siteT("order_more")}
             </Link>
 
             <Link
-              href={cityId ? `/${lang}/categories?city=${encodeURIComponent(cityId)}` : `/${lang}/categories`}
+              href={`/${lang}/categories`}
               className={`${styles.btn} ${styles.btnGhost}`}
             >
               {siteT("back_to_main")}

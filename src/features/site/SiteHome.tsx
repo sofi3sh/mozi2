@@ -60,7 +60,7 @@ export default function SiteHome() {
       return;
     }
 
-    router.push(`/${lang}/categories?city=${encodeURIComponent(selectedCityId)}`);
+    router.push(`/${lang}/categories`);
   }
 
   const selectedCityName = useMemo(

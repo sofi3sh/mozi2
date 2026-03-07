@@ -95,7 +95,7 @@ export default function SiteCart() {
     setCurrentCityId(id);
     // В режимі піддоменів setCurrentCityId зробить редірект.
     if (subdomainsEnabled && rootDomain && typeof window !== "undefined") return;
-    router.push(`/${lang}/cart?city=${encodeURIComponent(id)}`);
+    router.push(`/${lang}/cart`);
   }
 
   if (!city) {
@@ -106,7 +106,7 @@ export default function SiteCart() {
           <div style={{ fontSize: 26, fontWeight: 950, letterSpacing: "-0.03em" }}>{t("choose_city")}</div>
           <div style={{ marginTop: 10, opacity: 0.72, fontWeight: 700 }}>{t("choose_city_hint")}</div>
           <div style={{ marginTop: 18 }}>
-            <Link href={cityId ? `/${lang}/categories?city=${encodeURIComponent(cityId)}` : `/${lang}/categories`} style={{ textDecoration: "underline" }}>
+            <Link href={`/${lang}/categories`} style={{ textDecoration: "underline" }}>
               {t("back_home")}
             </Link>
           </div>
@@ -172,7 +172,7 @@ export default function SiteCart() {
             <div style={{ fontWeight: 950, fontSize: 18 }}>{t("cart_empty_title")}</div>
             <div style={{ marginTop: 8, opacity: 0.72, fontWeight: 750 }}>{t("cart_empty_hint")}</div>
             <div style={{ marginTop: 14 }}>
-              <Link href={`/${lang}/venues?city=${encodeURIComponent(cityId)}`} style={{ textDecoration: "underline", fontWeight: 900 }}>
+              <Link href={`/${lang}/venues`} style={{ textDecoration: "underline", fontWeight: 900 }}>
                 {t("go_to_venues")}
               </Link>
             </div>
@@ -329,7 +329,7 @@ export default function SiteCart() {
               </div>
               <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <Link
-                  href={`/${lang}/venues?city=${encodeURIComponent(cityId)}`}
+                  href={`/${lang}/venues`}
                   style={{
                     padding: "10px 14px",
                     borderRadius: 999,

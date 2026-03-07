@@ -80,14 +80,79 @@ export default function SiteVenues() {
   const { getByCity } = useVenues();
   const { dishes, categories } = useMenu();
   const { venueTypes, cuisineTypes } = useCatalog();
+  const [hash, setHash] = useState<string>("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const read = () => {
+      const raw = window.location.hash || "";
+      setHash(raw.startsWith("#") ? raw.slice(1) : raw);
+    };
+    read();
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
+  }, []);
 
   const qsCity = sp.get("city") ?? "";
   const qsCat = sp.get("cat") ?? "";
   const qsVenueTypes = sp.get("venueTypes") ?? "";
   const qsCuisines = sp.get("cuisines") ?? "";
 
-  // Якщо місто визначене піддоменом — пріоритетно беремо його
-  const cityId = hostCityId || qsCity || lastCityId || "";
+  const parsedFromHash = useMemo(() => {
+    const raw = (hash || "").trim();
+    if (!raw) {
+      return {
+        cityFromHash: "",
+        catFromHash: "",
+        venueTypeIdsFromHash: [] as string[],
+        cuisineIdsFromHash: [] as string[],
+      };
+    }
+    const parts = raw.split("-").filter(Boolean);
+    let cityFromHash = "";
+    let catFromHash = "";
+    const venueTypeIdsFromHash: string[] = [];
+    const cuisineIdsFromHash: string[] = [];
+    const keys = new Set(["city", "venueTypes", "cuisines", "cat"]);
+    let i = 0;
+    while (i < parts.length) {
+      const key = parts[i++];
+      if (key === "city" && i < parts.length) {
+        cityFromHash = parts[i++];
+        continue;
+      }
+      if (key === "cat" && i < parts.length) {
+        catFromHash = parts[i++];
+        continue;
+      }
+      if (key === "venueTypes") {
+        const start = i;
+        while (i < parts.length && !keys.has(parts[i])) i++;
+        for (let j = start; j < i; j++) {
+          const token = parts[j];
+          if (!token) continue;
+          venueTypeIdsFromHash.push(`vt_${token}`);
+        }
+        continue;
+      }
+      if (key === "cuisines") {
+        const start = i;
+        while (i < parts.length && !keys.has(parts[i])) i++;
+        for (let j = start; j < i; j++) {
+          const token = parts[j];
+          if (!token) continue;
+          cuisineIdsFromHash.push(`ct_${token}`);
+        }
+        continue;
+      }
+    }
+    return { cityFromHash, catFromHash, venueTypeIdsFromHash, cuisineIdsFromHash };
+  }, [hash]);
+
+  const { cityFromHash, catFromHash, venueTypeIdsFromHash, cuisineIdsFromHash } = parsedFromHash;
+
+  // Якщо місто визначене піддоменом або в hash — пріоритетно беремо його
+  const cityId = hostCityId || cityFromHash || qsCity || lastCityId || "";
   const city = useMemo(() => cities.find((c) => c.id === cityId) ?? null, [cities, cityId]);
 
   // Не зберігаємо місто автоматично при завантаженні сторінки.
@@ -125,9 +190,21 @@ export default function SiteVenues() {
     [availableCuisineTypeIds, cuisineTypes]
   );
 
-  const initialVenueTypeIds = useMemo(() => qsVenueTypes.split(",").map((x) => x.trim()).filter(Boolean), [qsVenueTypes]);
-  const initialCuisineIds = useMemo(() => qsCuisines.split(",").map((x) => x.trim()).filter(Boolean), [qsCuisines]);
-  const initialCat = useMemo(() => qsCat.trim(), [qsCat]);
+  const initialVenueTypeIds = useMemo(
+    () =>
+      venueTypeIdsFromHash.length
+        ? venueTypeIdsFromHash
+        : qsVenueTypes.split(",").map((x) => x.trim()).filter(Boolean),
+    [venueTypeIdsFromHash, qsVenueTypes]
+  );
+  const initialCuisineIds = useMemo(
+    () =>
+      cuisineIdsFromHash.length
+        ? cuisineIdsFromHash
+        : qsCuisines.split(",").map((x) => x.trim()).filter(Boolean),
+    [cuisineIdsFromHash, qsCuisines]
+  );
+  const initialCat = useMemo(() => (catFromHash || qsCat).trim(), [catFromHash, qsCat]);
 
   const [draftVenueTypes, setDraftVenueTypes] = useState<string[]>(initialVenueTypeIds);
   const [draftCuisines, setDraftCuisines] = useState<string[]>(initialCuisineIds);
@@ -188,7 +265,12 @@ export default function SiteVenues() {
     setCurrentCityId(id);
     // В режимі піддоменів setCurrentCityId зробить редірект.
     if (subdomainsEnabled && rootDomain && typeof window !== "undefined") return;
-    router.push(`/${lang}/venues?city=${encodeURIComponent(id)}`);
+    const parts: string[] = [];
+    if (id) parts.push(`city-${id}`);
+    const hashValue = parts.join("-");
+    const basePath = `/${lang}/venues`;
+    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    router.push(url);
   }
 
   function toggle(list: string[], id: string) {
@@ -196,21 +278,31 @@ export default function SiteVenues() {
   }
 
   function applyFilters() {
-    const parts: string[] = [];
-    if (!subdomainsEnabled && cityId) parts.push(`city=${encodeURIComponent(cityId)}`);
-    if (initialCat) parts.push(`cat=${encodeURIComponent(initialCat)}`);
-    if (draftVenueTypes.length) parts.push(`venueTypes=${encodeURIComponent(draftVenueTypes.join(","))}`);
-    if (draftCuisines.length) parts.push(`cuisines=${encodeURIComponent(draftCuisines.join(","))}`);
-    router.push(`/${lang}/venues?${parts.join("&")}`);
+    const segments: string[] = [];
+    if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
+    if (draftVenueTypes.length) {
+      const tokens = draftVenueTypes.map((id) => id.replace(/^vt_/, "")).filter(Boolean);
+      if (tokens.length) segments.push(`venueTypes-${tokens.join("-")}`);
+    }
+    if (draftCuisines.length) {
+      const tokens = draftCuisines.map((id) => id.replace(/^ct_/, "")).filter(Boolean);
+      if (tokens.length) segments.push(`cuisines-${tokens.join("-")}`);
+    }
+    const hashValue = segments.join("-");
+    const basePath = `/${lang}/venues`;
+    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    router.push(url);
   }
 
   function clearFilters() {
     setDraftVenueTypes([]);
     setDraftCuisines([]);
-    const parts: string[] = [];
-    if (!subdomainsEnabled && cityId) parts.push(`city=${encodeURIComponent(cityId)}`);
-    if (initialCat) parts.push(`cat=${encodeURIComponent(initialCat)}`);
-    router.push(`/${lang}/venues?${parts.join("&")}`);
+    const segments: string[] = [];
+    if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
+    const hashValue = segments.join("-");
+    const basePath = `/${lang}/venues`;
+    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    router.push(url);
   }
 
   function tagNameFromIds(ids: string[], dict: { id: string; name: string }[]) {

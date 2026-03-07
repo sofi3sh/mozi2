@@ -278,7 +278,7 @@ export default function SiteCheckout() {
     setCurrentCityId(id);
     // В режимі піддоменів setCurrentCityId зробить редірект.
     if (subdomainsEnabled && rootDomain && typeof window !== "undefined") return;
-    router.push(`/${lang}/checkout?city=${encodeURIComponent(id)}`);
+    router.push(`/${lang}/checkout`);
   }
 
   const title = t("checkout_title");
@@ -393,10 +393,15 @@ export default function SiteCheckout() {
 
       clearCity(cityId);
 
-      const q = new URLSearchParams();
-      q.set("city", cityId);
-      if (numbers.length) q.set("numbers", numbers.join(","));
-      router.push(`/${lang}/checkout/success?${q.toString()}`);
+      // Будуємо ЧПУ через hash замість query:
+      // /{lang}/checkout/success#city-sloviansk-numbers-1028-1029
+      const parts: string[] = [];
+      if (cityId) parts.push(`city-${cityId}`);
+      if (numbers.length) parts.push(`numbers-${numbers.join("-")}`);
+      const hash = parts.join("-");
+      const basePath = `/${lang}/checkout/success`;
+      const url = hash ? `${basePath}#${hash}` : basePath;
+      router.push(url);
     } catch (e: any) {
       setError(e?.message ?? (lang === "ru" ? "Не удалось оформить заказ." : "Не вдалося оформити замовлення."));
     } finally {

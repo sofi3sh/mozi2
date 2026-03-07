@@ -135,8 +135,7 @@ export default function SiteCart() {
 
   const empty = vids.length === 0;
 
-  const useQueryCity = !(subdomainsEnabled && rootDomain);
-  const checkoutHref = `/${lang}/checkout${useQueryCity && cityId ? `?city=${encodeURIComponent(cityId)}` : ""}`;
+  const checkoutHref = `/${lang}/checkout`;
 
   return (
     <>
@@ -291,7 +290,7 @@ export default function SiteCart() {
 
                   <div style={{ marginTop: 12,  fontWeight: 750 }}>
                     <Link
-                      href={`/${lang}/checkout?city=${encodeURIComponent(cityId)}`}
+                      href={`/${lang}/checkout`}
                       style={{
                         display: "inline-flex",
                         alignItems: "center",
@@ -343,7 +342,7 @@ export default function SiteCart() {
                   {lang === "ru" ? "Добавить ещё" : "Додати ще"}
                 </Link>
                 <Link
-                  href={`/${lang}/checkout?city=${encodeURIComponent(cityId)}`}
+                  href={`/${lang}/checkout`}
                   style={{
                     padding: "10px 14px",
                     borderRadius: 999,

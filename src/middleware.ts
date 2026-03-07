@@ -131,9 +131,10 @@ export function middleware(req: NextRequest) {
   const needsAdmin = path.startsWith("/admin");
   const needsUpload = path.startsWith("/api/uploads");
   const needsMutatingApi =
-    path.startsWith("/api/") &&
-    ["POST", "PATCH", "PUT", "DELETE"].includes(req.method.toUpperCase()) &&
-    !path.startsWith("/api/auth/");
+  path.startsWith("/api/") &&
+  ["POST", "PATCH", "PUT", "DELETE"].includes(req.method.toUpperCase()) &&
+  !path.startsWith("/api/auth/") &&
+  !path.startsWith("/api/checkout");
 
   const session = req.cookies.get(SESSION_COOKIE)?.value;
 

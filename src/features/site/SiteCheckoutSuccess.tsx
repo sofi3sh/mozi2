@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import SiteHeader from "@/components/site/SiteHeader";
@@ -17,20 +17,57 @@ export default function SiteCheckoutSuccess() {
   const router = useRouter();
   const sp = useSearchParams();
   const { cities, lastCityId, hostCityId, subdomainsEnabled, rootDomain, setCurrentCityId } = useCityScope();
+  const [hash, setHash] = useState("");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const read = () => {
+      const raw = window.location.hash || "";
+      setHash(raw.startsWith("#") ? raw.slice(1) : raw);
+    };
+    read();
+    window.addEventListener("hashchange", read);
+    return () => window.removeEventListener("hashchange", read);
+  }, []);
+
+  const { cityFromHash, numbersFromHash } = useMemo(() => {
+    const raw = (hash || "").trim();
+    if (!raw) return { cityFromHash: "", numbersFromHash: "" };
+    const parts = raw.split("-").filter(Boolean);
+    let cityFromHashLocal = "";
+    const numbers: string[] = [];
+    const keys = new Set(["city", "numbers"]);
+    let i = 0;
+    while (i < parts.length) {
+      const key = parts[i++];
+      if (key === "city" && i < parts.length) {
+        cityFromHashLocal = parts[i++];
+        continue;
+      }
+      if (key === "numbers") {
+        const start = i;
+        while (i < parts.length && !keys.has(parts[i])) i++;
+        for (let j = start; j < i; j++) numbers.push(parts[j]);
+        continue;
+      }
+    }
+    return { cityFromHash: cityFromHashLocal, numbersFromHash: numbers.join("-") };
+  }, [hash]);
 
   const qsCity = sp.get("city") ?? "";
-  // Якщо місто визначене піддоменом — пріоритетно беремо його
-  const cityId = hostCityId || qsCity || lastCityId || "";
+  // Якщо місто визначене піддоменом або в hash — пріоритетно беремо його
+  const cityId = hostCityId || cityFromHash || qsCity || lastCityId || "";
   const city = useMemo(() => cities.find((c) => c.id === cityId) ?? null, [cities, cityId]);
 
-  const numbersRaw = sp.get("numbers") ?? "";
+  const numbersRawFromQuery = sp.get("numbers") ?? "";
+  const numbersRawCombined = numbersFromHash || numbersRawFromQuery;
   const numbers = useMemo(
     () =>
-      numbersRaw
-        .split(",")
+      (numbersRawCombined || "")
+        .split(/[-,]/)
         .map((x) => parseInt(x.trim(), 10))
         .filter((n) => Number.isFinite(n)),
-    [numbersRaw]
+    [numbersRawCombined]
   );
 
   const cfg = (global as any)?.checkoutSuccess;
@@ -42,7 +79,13 @@ export default function SiteCheckoutSuccess() {
     setCurrentCityId(id);
     // В режимі піддоменів setCurrentCityId зробить редірект.
     if (subdomainsEnabled && rootDomain && typeof window !== "undefined") return;
-    router.push(`/${lang}/checkout/success?city=${encodeURIComponent(id)}&numbers=${encodeURIComponent(numbersRaw)}`);
+    const parts: string[] = [];
+    if (id) parts.push(`city-${id}`);
+    if (numbers.length) parts.push(`numbers-${numbers.join("-")}`);
+    const newHash = parts.join("-");
+    const basePath = `/${lang}/checkout/success`;
+    const url = newHash ? `${basePath}#${newHash}` : basePath;
+    router.push(url);
   }
 
   return (

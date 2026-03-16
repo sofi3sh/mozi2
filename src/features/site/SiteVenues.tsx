@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import { useSiteLang } from "@/store/siteLang";
@@ -16,6 +16,7 @@ import { useCatalog } from "@/store/catalog";
 import { ClockIcon, StarIcon } from "@/components/site/SiteIcons";
 import { cityHeroBg, venueCover } from "@/lib/site/siteMedia";
 import { openStatus } from "@/lib/site/openStatus";
+import { slugify } from "@/lib/slugify";
 
 function seeded(n: string) {
   let h = 0;
@@ -74,55 +75,45 @@ export default function SiteVenues() {
   const { lang } = useSiteLang();
   const { t } = useSiteT();
   const router = useRouter();
-  const sp = useSearchParams();
-  const seoEnabled = sp.get("seo") === "1";
+  const pathname = usePathname() || "";
+  const seoEnabled = false;
   const { cities, lastCityId, hostCityId, subdomainsEnabled, rootDomain, setCurrentCityId } = useCityScope();
   const { getByCity } = useVenues();
   const { dishes, categories } = useMenu();
   const { venueTypes, cuisineTypes } = useCatalog();
-  const [hash, setHash] = useState<string>("");
 
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const read = () => {
-      const raw = window.location.hash || "";
-      setHash(raw.startsWith("#") ? raw.slice(1) : raw);
-    };
-    read();
-    window.addEventListener("hashchange", read);
-    return () => window.removeEventListener("hashchange", read);
-  }, []);
+  const filtersRaw = useMemo(() => {
+    const parts = pathname.split("/").filter(Boolean);
+    const idx = parts.indexOf("venues");
+    if (idx === -1 || idx === parts.length - 1) return "";
+    return parts.slice(idx + 1).join("-");
+  }, [pathname]);
 
-  const qsCity = sp.get("city") ?? "";
-  const qsCat = sp.get("cat") ?? "";
-  const qsVenueTypes = sp.get("venueTypes") ?? "";
-  const qsCuisines = sp.get("cuisines") ?? "";
-
-  const parsedFromHash = useMemo(() => {
-    const raw = (hash || "").trim();
+  const parsed = useMemo(() => {
+    const raw = (filtersRaw || "").trim();
     if (!raw) {
       return {
-        cityFromHash: "",
-        catFromHash: "",
-        venueTypeIdsFromHash: [] as string[],
-        cuisineIdsFromHash: [] as string[],
+        cityFromPath: "",
+        catFromPath: "",
+        venueTypeSlugsFromPath: [] as string[],
+        cuisineIdsFromPath: [] as string[],
       };
     }
     const parts = raw.split("-").filter(Boolean);
-    let cityFromHash = "";
-    let catFromHash = "";
-    const venueTypeIdsFromHash: string[] = [];
-    const cuisineIdsFromHash: string[] = [];
+    let cityFromPath = "";
+    let catFromPath = "";
+    const venueTypeSlugsFromPath: string[] = [];
+    const cuisineIdsFromPath: string[] = [];
     const keys = new Set(["city", "venueTypes", "cuisines", "cat"]);
     let i = 0;
     while (i < parts.length) {
       const key = parts[i++];
       if (key === "city" && i < parts.length) {
-        cityFromHash = parts[i++];
+        cityFromPath = parts[i++];
         continue;
       }
       if (key === "cat" && i < parts.length) {
-        catFromHash = parts[i++];
+        catFromPath = parts[i++];
         continue;
       }
       if (key === "venueTypes") {
@@ -131,7 +122,7 @@ export default function SiteVenues() {
         for (let j = start; j < i; j++) {
           const token = parts[j];
           if (!token) continue;
-          venueTypeIdsFromHash.push(`vt_${token}`);
+          venueTypeSlugsFromPath.push(token);
         }
         continue;
       }
@@ -141,18 +132,18 @@ export default function SiteVenues() {
         for (let j = start; j < i; j++) {
           const token = parts[j];
           if (!token) continue;
-          cuisineIdsFromHash.push(`ct_${token}`);
+          cuisineIdsFromPath.push(`ct_${token}`);
         }
         continue;
       }
     }
-    return { cityFromHash, catFromHash, venueTypeIdsFromHash, cuisineIdsFromHash };
-  }, [hash]);
+    return { cityFromPath, catFromPath, venueTypeSlugsFromPath, cuisineIdsFromPath };
+  }, [filtersRaw]);
 
-  const { cityFromHash, catFromHash, venueTypeIdsFromHash, cuisineIdsFromHash } = parsedFromHash;
+  const { cityFromPath, catFromPath, venueTypeSlugsFromPath, cuisineIdsFromPath } = parsed;
 
-  // Якщо місто визначене піддоменом або в hash — пріоритетно беремо його
-  const cityId = hostCityId || cityFromHash || qsCity || lastCityId || "";
+  // Якщо місто визначене піддоменом або в шляху — пріоритетно беремо його
+  const cityId = hostCityId || cityFromPath || lastCityId || "";
   const city = useMemo(() => cities.find((c) => c.id === cityId) ?? null, [cities, cityId]);
 
   // Не зберігаємо місто автоматично при завантаженні сторінки.
@@ -190,21 +181,31 @@ export default function SiteVenues() {
     [availableCuisineTypeIds, cuisineTypes]
   );
 
-  const initialVenueTypeIds = useMemo(
-    () =>
-      venueTypeIdsFromHash.length
-        ? venueTypeIdsFromHash
-        : qsVenueTypes.split(",").map((x) => x.trim()).filter(Boolean),
-    [venueTypeIdsFromHash, qsVenueTypes]
-  );
+  const venueTypeSlugToId = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const vt of venueTypes) {
+      const name = (vt as any).name as string;
+      const id = (vt as any).id as string;
+      const slug = slugify(name);
+      if (slug) m.set(slug, id);
+    }
+    return m;
+  }, [venueTypes]);
+
+  const initialVenueTypeIds = useMemo(() => {
+    if (!venueTypeSlugsFromPath.length) return [];
+    const ids: string[] = [];
+    for (const s of venueTypeSlugsFromPath) {
+      const id = venueTypeSlugToId.get(s);
+      if (id) ids.push(id);
+    }
+    return ids;
+  }, [venueTypeSlugsFromPath, venueTypeSlugToId]);
   const initialCuisineIds = useMemo(
-    () =>
-      cuisineIdsFromHash.length
-        ? cuisineIdsFromHash
-        : qsCuisines.split(",").map((x) => x.trim()).filter(Boolean),
-    [cuisineIdsFromHash, qsCuisines]
+    () => (cuisineIdsFromPath.length ? cuisineIdsFromPath : []),
+    [cuisineIdsFromPath]
   );
-  const initialCat = useMemo(() => (catFromHash || qsCat).trim(), [catFromHash, qsCat]);
+  const initialCat = useMemo(() => catFromPath.trim(), [catFromPath]);
 
   const [draftVenueTypes, setDraftVenueTypes] = useState<string[]>(initialVenueTypeIds);
   const [draftCuisines, setDraftCuisines] = useState<string[]>(initialCuisineIds);
@@ -265,11 +266,11 @@ export default function SiteVenues() {
     setCurrentCityId(id);
     // В режимі піддоменів setCurrentCityId зробить редірект.
     if (subdomainsEnabled && rootDomain && typeof window !== "undefined") return;
-    const parts: string[] = [];
-    if (id) parts.push(`city-${id}`);
-    const hashValue = parts.join("-");
+    const segments: string[] = [];
+    if (id && !subdomainsEnabled) segments.push(`city-${id}`);
+    const suffix = segments.length ? `/${segments.join("-")}` : "";
     const basePath = `/${lang}/venues`;
-    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    const url = `${basePath}${suffix}`;
     router.push(url);
   }
 
@@ -281,16 +282,21 @@ export default function SiteVenues() {
     const segments: string[] = [];
     if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
     if (draftVenueTypes.length) {
-      const tokens = draftVenueTypes.map((id) => id.replace(/^vt_/, "")).filter(Boolean);
+      const tokens = draftVenueTypes
+        .map((id) => {
+          const vt = venueTypes.find((x) => (x as any).id === id);
+          return vt ? slugify((vt as any).name as string) : "";
+        })
+        .filter(Boolean);
       if (tokens.length) segments.push(`venueTypes-${tokens.join("-")}`);
     }
     if (draftCuisines.length) {
       const tokens = draftCuisines.map((id) => id.replace(/^ct_/, "")).filter(Boolean);
       if (tokens.length) segments.push(`cuisines-${tokens.join("-")}`);
     }
-    const hashValue = segments.join("-");
+    const suffix = segments.length ? `/${segments.join("-")}` : "";
     const basePath = `/${lang}/venues`;
-    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    const url = `${basePath}${suffix}`;
     router.push(url);
   }
 
@@ -299,9 +305,9 @@ export default function SiteVenues() {
     setDraftCuisines([]);
     const segments: string[] = [];
     if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
-    const hashValue = segments.join("-");
+    const suffix = segments.length ? `/${segments.join("-")}` : "";
     const basePath = `/${lang}/venues`;
-    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    const url = `${basePath}${suffix}`;
     router.push(url);
   }
 

@@ -183,9 +183,29 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
   }, [dishes]);
 
   const [activeCatId, setActiveCatId] = useState<string>("");
+
+  const catSlugMap = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const c of categories) {
+      const slug = (c as any).slug as string | undefined;
+      if (slug) m.set(slug, c.id);
+    }
+    return m;
+  }, [categories]);
+
   useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash || "";
+    if (hash.startsWith("#categories/")) {
+      const slug = decodeURIComponent(hash.slice("#categories/".length));
+      const id = catSlugMap.get(slug);
+      if (id) {
+        setActiveCatId(id);
+        return;
+      }
+    }
     if (!activeCatId && categories.length) setActiveCatId(categories[0].id);
-  }, [categories, activeCatId]);
+  }, [categories, activeCatId, catSlugMap]);
 
   const [qty, setQty] = useState<Record<string, number>>({});
 
@@ -499,7 +519,32 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
         <div style={{ marginTop: 18, display: "flex", gap: 10, flexWrap: "wrap" }}>
           {categories.map((c) => {
             const active = c.id === activeCatId;
-            return (
+            const slug = (c as any).slug as string | undefined;
+            const href =
+              slug
+                ? `/${lang}/city/${encodeURIComponent(cityId)}/${encodeURIComponent(
+                    venueSlug
+                  )}#categories/${encodeURIComponent(slug)}`
+                : undefined;
+            return href ? (
+              <Link
+                key={c.id}
+                href={href}
+                style={{
+                  padding: "10px 14px",
+                  borderRadius: 999,
+                  border: active ? "1px solid rgba(230,162,74,0.70)" : "1px solid rgba(31,41,55,0.10)",
+                  background: active ? "rgba(230,162,74,0.18)" : "rgba(255,255,255,0.70)",
+                  fontWeight: 950,
+                  cursor: "pointer",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+                onClick={() => setActiveCatId(c.id)}
+              >
+                {c.name}
+              </Link>
+            ) : (
               <button
                 key={c.id}
                 type="button"
@@ -513,7 +558,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
                   cursor: "pointer",
                 }}
               >
-{c.name}
+                {c.name}
               </button>
             );
           })}

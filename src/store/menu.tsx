@@ -6,6 +6,7 @@ import { stripLangPrefix } from "@/lib/lang";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useCityScope } from "@/store/cityScope";
 import { useVenues } from "@/store/venues";
+import { slugify } from "@/lib/slugify";
 
 export type MenuCategory = {
   id: string;
@@ -14,6 +15,7 @@ export type MenuCategory = {
   name: string;
   sort: number;
   photoUrl?: string | null;
+  slug?: string;
 };
 
 export type Dish = {
@@ -103,13 +105,16 @@ function toNum(v: any, fallback = 0) {
 }
 
 function normalizeCategory(c: any): MenuCategory {
+  const name = String(c?.name ?? "");
+  const slug = c?.slug ? String(c.slug) : slugify(name);
   return {
     id: String(c?.id ?? uid("cat")),
     cityId: String(c?.cityId ?? ""),
     venueId: String(c?.venueId ?? ""),
-    name: String(c?.name ?? ""),
+    name,
     sort: toNum(c?.sort, 10),
     photoUrl: c?.photoUrl ?? null,
+    slug,
   };
 }
 
@@ -333,6 +338,7 @@ useEffect(() => {
         name,
         sort: Math.round(toNum(input?.sort, 10)),
         photoUrl: input?.photoUrl ?? null,
+        slug: slugify(name),
       };
 
       setCategories((prev) => [created, ...prev]);

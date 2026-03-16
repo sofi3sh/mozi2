@@ -15,6 +15,7 @@ import { useCatalog } from "@/store/catalog";
 import { useSettings } from "@/store/settings";
 import { ArrowRightIcon, ClockIcon, StarIcon } from "@/components/site/SiteIcons";
 import { categoryCover, cityHeroBg, venueCover } from "@/lib/site/siteMedia";
+import { slugify } from "@/lib/slugify";
 import { openStatus } from "@/lib/site/openStatus";
 
 function clamp2(text: string) {
@@ -61,17 +62,12 @@ export default function SiteCategories() {
   const { global } = useSettings();
 
   const qsCity = sp.get("city") ?? "";
-  const qsVenueTypes = sp.get("venueTypes") ?? "";
-  const qsVenueType = sp.get("venueType") ?? "";
 
   // Якщо місто визначене піддоменом — пріоритетно беремо його
   const cityId = hostCityId || qsCity || lastCityId || "";
   const city = useMemo(() => cities.find((c) => c.id === cityId) ?? null, [cities, cityId]);
 
-  const initialVenueTypeId = useMemo(() => {
-    const fromMulti = qsVenueTypes.split(",").map((x) => x.trim()).filter(Boolean)[0] || "";
-    return (qsVenueType || fromMulti || "").trim();
-  }, [qsVenueType, qsVenueTypes]);
+  const initialVenueTypeId = useMemo(() => "", []);
 
   const [selectedVenueTypeId, setSelectedVenueTypeId] = useState<string>(initialVenueTypeId);
 
@@ -136,12 +132,13 @@ export default function SiteCategories() {
     const segments: string[] = [];
     if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
     if (next) {
-      const token = next.replace(/^vt_/, "");
+      const vt = venueTypes.find((x) => (x as any).id === next);
+      const token = vt ? slugify((vt as any).name as string) : "";
       if (token) segments.push(`venueTypes-${token}`);
     }
-    const hashValue = segments.join("-");
+    const suffix = segments.length ? `/${segments.join("-")}` : "";
     const basePath = `/${lang}/venues`;
-    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    const url = `${basePath}${suffix}`;
     router.push(url);
   }
 

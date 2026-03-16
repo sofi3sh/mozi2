@@ -16,6 +16,7 @@ import { useCatalog } from "@/store/catalog";
 import { ClockIcon, StarIcon } from "@/components/site/SiteIcons";
 import { cityHeroBg, venueCover } from "@/lib/site/siteMedia";
 import { openStatus } from "@/lib/site/openStatus";
+import { slugify } from "@/lib/slugify";
 
 function seeded(n: string) {
   let h = 0;
@@ -104,14 +105,14 @@ export default function SiteVenues() {
       return {
         cityFromHash: "",
         catFromHash: "",
-        venueTypeIdsFromHash: [] as string[],
+        venueTypeSlugsFromHash: [] as string[],
         cuisineIdsFromHash: [] as string[],
       };
     }
     const parts = raw.split("-").filter(Boolean);
     let cityFromHash = "";
     let catFromHash = "";
-    const venueTypeIdsFromHash: string[] = [];
+    const venueTypeSlugsFromHash: string[] = [];
     const cuisineIdsFromHash: string[] = [];
     const keys = new Set(["city", "venueTypes", "cuisines", "cat"]);
     let i = 0;
@@ -131,7 +132,7 @@ export default function SiteVenues() {
         for (let j = start; j < i; j++) {
           const token = parts[j];
           if (!token) continue;
-          venueTypeIdsFromHash.push(`vt_${token}`);
+          venueTypeSlugsFromHash.push(token);
         }
         continue;
       }
@@ -146,10 +147,10 @@ export default function SiteVenues() {
         continue;
       }
     }
-    return { cityFromHash, catFromHash, venueTypeIdsFromHash, cuisineIdsFromHash };
+    return { cityFromHash, catFromHash, venueTypeSlugsFromHash, cuisineIdsFromHash };
   }, [hash]);
 
-  const { cityFromHash, catFromHash, venueTypeIdsFromHash, cuisineIdsFromHash } = parsedFromHash;
+  const { cityFromHash, catFromHash, venueTypeSlugsFromHash, cuisineIdsFromHash } = parsedFromHash;
 
   // Якщо місто визначене піддоменом або в hash — пріоритетно беремо його
   const cityId = hostCityId || cityFromHash || qsCity || lastCityId || "";
@@ -190,13 +191,28 @@ export default function SiteVenues() {
     [availableCuisineTypeIds, cuisineTypes]
   );
 
-  const initialVenueTypeIds = useMemo(
-    () =>
-      venueTypeIdsFromHash.length
-        ? venueTypeIdsFromHash
-        : qsVenueTypes.split(",").map((x) => x.trim()).filter(Boolean),
-    [venueTypeIdsFromHash, qsVenueTypes]
-  );
+  const venueTypeSlugToId = useMemo(() => {
+    const m = new Map<string, string>();
+    for (const vt of venueTypes) {
+      const id = (vt as any).id as string;
+      const name = (vt as any).name as string;
+      const slug = slugify(name);
+      if (slug) m.set(slug, id);
+    }
+    return m;
+  }, [venueTypes]);
+
+  const initialVenueTypeIds = useMemo(() => {
+    if (venueTypeSlugsFromHash.length) {
+      const ids: string[] = [];
+      for (const s of venueTypeSlugsFromHash) {
+        const id = venueTypeSlugToId.get(s);
+        if (id) ids.push(id);
+      }
+      if (ids.length) return ids;
+    }
+    return qsVenueTypes.split(",").map((x) => x.trim()).filter(Boolean);
+  }, [venueTypeSlugsFromHash, venueTypeSlugToId, qsVenueTypes]);
   const initialCuisineIds = useMemo(
     () =>
       cuisineIdsFromHash.length
@@ -286,7 +302,12 @@ export default function SiteVenues() {
     const segments: string[] = [];
     if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
     if (draftVenueTypes.length) {
-      const tokens = draftVenueTypes.map((id) => id.replace(/^vt_/, "")).filter(Boolean);
+      const tokens = draftVenueTypes
+        .map((id) => {
+          const vt = venueTypes.find((x) => (x as any).id === id);
+          return vt ? slugify((vt as any).name as string) : "";
+        })
+        .filter(Boolean);
       if (tokens.length) segments.push(`venueTypes-${tokens.join("-")}`);
     }
     if (draftCuisines.length) {

@@ -15,6 +15,7 @@ import { useCatalog } from "@/store/catalog";
 import { useSettings } from "@/store/settings";
 import { ArrowRightIcon, ClockIcon, StarIcon } from "@/components/site/SiteIcons";
 import { categoryCover, cityHeroBg, venueCover } from "@/lib/site/siteMedia";
+import { slugify } from "@/lib/slugify";
 import { openStatus } from "@/lib/site/openStatus";
 
 function clamp2(text: string) {
@@ -136,7 +137,8 @@ export default function SiteCategories() {
     const segments: string[] = [];
     if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
     if (next) {
-      const token = next.replace(/^vt_/, "");
+      const vt = venueTypes.find((x) => (x as any).id === next);
+      const token = vt ? slugify((vt as any).name as string) : "";
       if (token) segments.push(`venueTypes-${token}`);
     }
     const hashValue = segments.join("-");

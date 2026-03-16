@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import { useSiteLang } from "@/store/siteLang";
@@ -76,20 +76,12 @@ export default function SiteVenues() {
   const { t } = useSiteT();
   const router = useRouter();
   const sp = useSearchParams();
-  const pathname = usePathname() || "";
   const seoEnabled = sp.get("seo") === "1";
   const { cities, lastCityId, hostCityId, subdomainsEnabled, rootDomain, setCurrentCityId } = useCityScope();
   const { getByCity } = useVenues();
   const { dishes, categories } = useMenu();
   const { venueTypes, cuisineTypes } = useCatalog();
   const [hash, setHash] = useState<string>("");
-
-  const pathFiltersRaw = useMemo(() => {
-    const parts = pathname.split("/").filter(Boolean);
-    const idx = parts.indexOf("venues");
-    if (idx === -1 || idx === parts.length - 1) return "";
-    return parts.slice(idx + 1).join("-"); // allow /a/b => "a-b"
-  }, [pathname]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -158,11 +150,10 @@ export default function SiteVenues() {
     return { cityFromHash, catFromHash, venueTypeSlugsFromHash, cuisineIdsFromHash };
   }
 
-  const parsedFromPath = useMemo(() => parseFilterString(pathFiltersRaw), [pathFiltersRaw]);
-  const parsedFromHash = useMemo(() => parseFilterString(hash), [hash]);
-
-  const parsed = pathFiltersRaw ? parsedFromPath : parsedFromHash;
-  const { cityFromHash, catFromHash, venueTypeSlugsFromHash, cuisineIdsFromHash } = parsed;
+  const { cityFromHash, catFromHash, venueTypeSlugsFromHash, cuisineIdsFromHash } = useMemo(
+    () => parseFilterString(hash),
+    [hash]
+  );
 
   // Якщо місто визначене піддоменом або в фільтрах — пріоритетно беремо його
   const cityId = hostCityId || cityFromHash || qsCity || lastCityId || "";
@@ -257,16 +248,6 @@ export default function SiteVenues() {
   useEffect(() => setDraftVenueTypes(initialVenueTypeIds), [initialVenueTypeIds]); // keep in sync
   useEffect(() => setDraftCuisines(initialCuisineIds), [initialCuisineIds]);
 
-  // Back-compat: if user opened old hash URL, convert to path URL (no #).
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (pathFiltersRaw) return;
-    const raw = (window.location.hash || "").replace(/^#/, "").trim();
-    if (!raw) return;
-    const basePath = `/${lang}/venues`;
-    router.replace(`${basePath}/${raw}`);
-  }, [lang, pathFiltersRaw, router]);
-
   const filteredVenues = useMemo(() => {
     const effectiveVenueTypeIds = draftVenueTypes.length ? draftVenueTypes : initialVenueTypeIds;
     const effectiveCuisineIds = draftCuisines.length ? draftCuisines : initialCuisineIds;
@@ -308,9 +289,12 @@ export default function SiteVenues() {
     setCurrentCityId(id);
     // В режимі піддоменів setCurrentCityId зробить редірект.
     if (subdomainsEnabled && rootDomain && typeof window !== "undefined") return;
+    const parts: string[] = [];
+    if (id) parts.push(`city-${id}`);
+    const hashValue = parts.join("-");
     const basePath = `/${lang}/venues`;
-    const suffix = id ? `/city-${id}` : "";
-    router.push(`${basePath}${suffix}`);
+    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    router.push(url);
   }
 
   function toggle(list: string[], id: string) {
@@ -333,9 +317,10 @@ export default function SiteVenues() {
       const tokens = draftCuisines.map((id) => id.replace(/^ct_/, "")).filter(Boolean);
       if (tokens.length) segments.push(`cuisines-${tokens.join("-")}`);
     }
+    const hashValue = segments.join("-");
     const basePath = `/${lang}/venues`;
-    const suffix = segments.length ? `/${segments.join("-")}` : "";
-    router.push(`${basePath}${suffix}`);
+    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    router.push(url);
   }
 
   function clearFilters() {
@@ -343,9 +328,10 @@ export default function SiteVenues() {
     setDraftCuisines([]);
     const segments: string[] = [];
     if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
+    const hashValue = segments.join("-");
     const basePath = `/${lang}/venues`;
-    const suffix = segments.length ? `/${segments.join("-")}` : "";
-    router.push(`${basePath}${suffix}`);
+    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    router.push(url);
   }
 
   function tagNameFromIds(ids: string[], dict: { id: string; name: string }[]) {

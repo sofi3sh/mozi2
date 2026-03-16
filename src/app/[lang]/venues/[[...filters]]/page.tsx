@@ -10,9 +10,17 @@ export async function generateMetadata({
   params: { lang: SiteLang; filters?: string[] };
   searchParams: Record<string, string | string[] | undefined>;
 }): Promise<Metadata> {
-  const lang = params.lang;
+  const { lang, filters } = params;
+
+  let cityId: string | undefined;
+  const firstSegment = Array.isArray(filters) && filters.length ? filters[0] || "" : "";
+  if (firstSegment.startsWith("city-")) {
+    cityId = firstSegment.slice("city-".length);
+  }
+
   return buildPageMetadata({
     lang,
+    cityId,
     pageKey: "venues",
     pathname: `/${lang}/venues`,
     searchParams,

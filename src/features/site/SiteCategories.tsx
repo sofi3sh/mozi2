@@ -132,19 +132,15 @@ export default function SiteCategories() {
   }
 
   function onPickVenueType(id: string) {
-    // При натисканні відкриваємо сторінку "Заклади" з уже обраним типом закладу.
-    const next = selectedVenueTypeId === id ? "" : id;
-    const segments: string[] = [];
-    if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
-    if (next) {
-      const vt = venueTypes.find((x) => (x as any).id === next);
-      const token = vt ? slugify((vt as any).name as string) : "";
-      if (token) segments.push(`venueTypes-${token}`);
+    const vt = venueTypes.find((x) => (x as any).id === id);
+    if (!vt) return;
+    const slug = slugify((vt as any).name as string);
+    if (!slug) return;
+    if (!subdomainsEnabled && cityId) {
+      router.push(`/${lang}/city/${encodeURIComponent(cityId)}/categories/${slug}`);
+    } else {
+      router.push(`/${lang}/categories/${slug}`);
     }
-    const filter = segments.join("-");
-    const basePath = `/${lang}/venues`;
-    const url = filter ? `${basePath}/${filter}` : basePath;
-    router.push(url);
   }
 
   if (!city) {
@@ -188,7 +184,7 @@ export default function SiteCategories() {
             <span style={{ opacity: 0.95 }}>{city.name}</span>
           </div>
 
-          <div
+          <h1
             style={{
               marginTop: 18,
               fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif",
@@ -200,7 +196,7 @@ export default function SiteCategories() {
             }}
           >
             {city.name}
-          </div>
+          </h1>
 
           <div style={{ marginTop: 12, fontSize: 16, opacity: 0.72, fontWeight: 700 }}>
             {lang === "ru"

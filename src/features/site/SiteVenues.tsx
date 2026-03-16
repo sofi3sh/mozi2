@@ -211,9 +211,11 @@ export default function SiteVenues() {
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const appliedFiltersCount = useMemo(() => {
-    const a = initialVenueTypeIds.length + initialCuisineIds.length + (initialCat ? 1 : 0);
+    const vt = draftVenueTypes.length || initialVenueTypeIds.length;
+    const cu = draftCuisines.length || initialCuisineIds.length;
+    const a = vt + cu + (initialCat ? 1 : 0);
     return a;
-  }, [initialVenueTypeIds.length, initialCuisineIds.length, initialCat]);
+  }, [draftVenueTypes.length, draftCuisines.length, initialVenueTypeIds.length, initialCuisineIds.length, initialCat]);
 
   useEffect(() => {
     if (!filtersOpen) return;
@@ -228,6 +230,9 @@ export default function SiteVenues() {
   useEffect(() => setDraftCuisines(initialCuisineIds), [initialCuisineIds]);
 
   const filteredVenues = useMemo(() => {
+    const effectiveVenueTypeIds = draftVenueTypes.length ? draftVenueTypes : initialVenueTypeIds;
+    const effectiveCuisineIds = draftCuisines.length ? draftCuisines : initialCuisineIds;
+
     let list = [...cityVenues];
 
     // category filter by category name (case-insensitive)
@@ -246,19 +251,19 @@ export default function SiteVenues() {
       list = list.filter((v) => venueIds.has(v.id));
     }
 
-    if (initialVenueTypeIds.length) {
-      const setIds = new Set(initialVenueTypeIds);
+    if (effectiveVenueTypeIds.length) {
+      const setIds = new Set(effectiveVenueTypeIds);
       list = list.filter((v) => (v.venueTypeIds || []).some((id) => setIds.has(id)));
     }
-    if (initialCuisineIds.length) {
-      const setIds = new Set(initialCuisineIds);
+    if (effectiveCuisineIds.length) {
+      const setIds = new Set(effectiveCuisineIds);
       list = list.filter((v) => (v.cuisineTypeIds || []).some((id) => setIds.has(id)));
     }
 
     // default sorting by rating (demo)
     list.sort((a, b) => venueRating(b.id) - venueRating(a.id));
     return list;
-  }, [cityVenues, initialVenueTypeIds, initialCuisineIds, initialCat, categories, dishes, cityId]);
+  }, [cityVenues, draftVenueTypes, draftCuisines, initialVenueTypeIds, initialCuisineIds, initialCat, categories, dishes, cityId]);
 
   function onSelectCity(id: string) {
     if (!id) return;

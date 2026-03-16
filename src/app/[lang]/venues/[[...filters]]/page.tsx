@@ -7,7 +7,7 @@ export async function generateMetadata({
   params,
   searchParams,
 }: {
-  params: { lang: SiteLang };
+  params: { lang: SiteLang; filters?: string[] };
   searchParams: Record<string, string | string[] | undefined>;
 }): Promise<Metadata> {
   const lang = params.lang;

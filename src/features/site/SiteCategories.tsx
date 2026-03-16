@@ -141,9 +141,9 @@ export default function SiteCategories() {
       const token = vt ? slugify((vt as any).name as string) : "";
       if (token) segments.push(`venueTypes-${token}`);
     }
-    const hashValue = segments.join("-");
+    const filter = segments.join("-");
     const basePath = `/${lang}/venues`;
-    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    const url = filter ? `${basePath}/${filter}` : basePath;
     router.push(url);
   }
 

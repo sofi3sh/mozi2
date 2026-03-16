@@ -2,7 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import SiteHeader from "@/components/site/SiteHeader";
 import SiteFooter from "@/components/site/SiteFooter";
 import { useSiteLang } from "@/store/siteLang";
@@ -81,6 +81,7 @@ export default function SiteVenues() {
   const { getByCity } = useVenues();
   const { dishes, categories } = useMenu();
   const { venueTypes, cuisineTypes } = useCatalog();
+  const pathname = usePathname();
   const [hash, setHash] = useState<string>("");
 
   useEffect(() => {
@@ -150,9 +151,18 @@ export default function SiteVenues() {
     return { cityFromHash, catFromHash, venueTypeSlugsFromHash, cuisineIdsFromHash };
   }
 
+  const filterFromPath = useMemo(() => {
+    const p = pathname || "";
+    if (!p) return "";
+    const parts = p.split("/").filter(Boolean);
+    const idx = parts.indexOf("venues");
+    if (idx === -1) return "";
+    return parts[idx + 1] || "";
+  }, [pathname]);
+
   const { cityFromHash, catFromHash, venueTypeSlugsFromHash, cuisineIdsFromHash } = useMemo(
-    () => parseFilterString(hash),
-    [hash]
+    () => parseFilterString(filterFromPath || hash),
+    [filterFromPath, hash]
   );
 
   // Якщо місто визначене піддоменом або в фільтрах — пріоритетно беремо його
@@ -291,9 +301,9 @@ export default function SiteVenues() {
     if (subdomainsEnabled && rootDomain && typeof window !== "undefined") return;
     const parts: string[] = [];
     if (id) parts.push(`city-${id}`);
-    const hashValue = parts.join("-");
+    const filter = parts.join("-");
     const basePath = `/${lang}/venues`;
-    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    const url = filter ? `${basePath}/${filter}` : basePath;
     router.push(url);
   }
 
@@ -317,9 +327,9 @@ export default function SiteVenues() {
       const tokens = draftCuisines.map((id) => id.replace(/^ct_/, "")).filter(Boolean);
       if (tokens.length) segments.push(`cuisines-${tokens.join("-")}`);
     }
-    const hashValue = segments.join("-");
+    const filter = segments.join("-");
     const basePath = `/${lang}/venues`;
-    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    const url = filter ? `${basePath}/${filter}` : basePath;
     router.push(url);
   }
 
@@ -328,9 +338,9 @@ export default function SiteVenues() {
     setDraftCuisines([]);
     const segments: string[] = [];
     if (!subdomainsEnabled && cityId) segments.push(`city-${cityId}`);
-    const hashValue = segments.join("-");
+    const filter = segments.join("-");
     const basePath = `/${lang}/venues`;
-    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
+    const url = filter ? `${basePath}/${filter}` : basePath;
     router.push(url);
   }
 

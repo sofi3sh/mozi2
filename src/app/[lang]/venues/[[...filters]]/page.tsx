@@ -5,17 +5,18 @@ import type { SiteLang } from "@/lib/lang";
 
 export async function generateMetadata({
   params,
-  searchParams,
 }: {
-  params: { lang: SiteLang };
-  searchParams: Record<string, string | string[] | undefined>;
+  params: { lang: SiteLang; filters?: string[] };
 }): Promise<Metadata> {
-  const lang = params.lang;
+  const { lang } = params;
+  const suffix = (params.filters || []).join("/");
+  const pathname = suffix ? `/${lang}/venues/${suffix}` : `/${lang}/venues`;
+
   return buildPageMetadata({
     lang,
     pageKey: "venues",
-    pathname: `/${lang}/venues`,
-    searchParams,
+    pathname,
+    searchParams: {},
     defaults: { title: "Заклади — mozi", description: "" },
   });
 }

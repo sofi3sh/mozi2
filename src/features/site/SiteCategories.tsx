@@ -141,10 +141,9 @@ export default function SiteCategories() {
       const token = vt ? slugify((vt as any).name as string) : "";
       if (token) segments.push(`venueTypes-${token}`);
     }
-    const hashValue = segments.join("-");
     const basePath = `/${lang}/venues`;
-    const url = hashValue ? `${basePath}#${hashValue}` : basePath;
-    router.push(url);
+    const suffix = segments.length ? `/${segments.join("-")}` : "";
+    router.push(`${basePath}${suffix}`);
   }
 
   if (!city) {

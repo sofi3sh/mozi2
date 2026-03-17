@@ -40,7 +40,9 @@ export default function MenuDishesPage({ cityId, venueId }: { cityId: string; ve
 
   // Add dish form
   const [name, setName] = useState("");
+  const [nameRu, setNameRu] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionRu, setDescriptionRu] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [price, setPrice] = useState<string>("199");
   const [photoUrl, setPhotoUrl] = useState<string>("");
@@ -112,7 +114,9 @@ export default function MenuDishesPage({ cityId, venueId }: { cityId: string; ve
       venueId,
       categoryId,
       name: name.trim(),
+      nameRu: nameRu.trim(),
       description: description.trim(),
+      descriptionRu: descriptionRu.trim(),
       price: p,
       photoUrl: photoUrl || "",
       isStopped: false,
@@ -120,7 +124,9 @@ export default function MenuDishesPage({ cityId, venueId }: { cityId: string; ve
     });
 
     setName("");
+    setNameRu("");
     setDescription("");
+    setDescriptionRu("");
     setPrice("199");
     setPhotoUrl("");
     setVariationGroupId("");
@@ -150,6 +156,10 @@ export default function MenuDishesPage({ cityId, venueId }: { cityId: string; ve
                 <div className="ui-label">Назва</div>
                 <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Напр. Маргарита" />
               </div>
+              <div className="ui-field">
+                <div className="ui-label">Назва (RU)</div>
+                <Input value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="Напр. Маргарита" />
+              </div>
 
               <div className="ui-field">
                 <div className="ui-label">Категорія</div>
@@ -167,6 +177,10 @@ export default function MenuDishesPage({ cityId, venueId }: { cityId: string; ve
             <div className="ui-field">
               <div className="ui-label">Опис</div>
               <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} placeholder="Коротко про страву..." />
+            </div>
+            <div className="ui-field">
+              <div className="ui-label">Опис (RU)</div>
+              <Textarea value={descriptionRu} onChange={(e) => setDescriptionRu(e.target.value)} rows={3} placeholder="Коротко про блюдо..." />
             </div>
 
             <div className="ui-grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 12 }}>

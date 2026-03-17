@@ -16,6 +16,7 @@ export async function POST(req: Request) {
 
   const body = await readBody(req);
   const name = (body?.name ?? "").toString().trim();
+  const nameRu = (body?.nameRu ?? "").toString().trim();
   if (name.length < 2) return badRequest("Назва міста занадто коротка");
 
   const id = slugify(name);
@@ -24,6 +25,6 @@ export async function POST(req: Request) {
   const exists = await prisma.city.findUnique({ where: { id } });
   if (exists) return conflict("Місто з таким ID вже існує");
 
-  const created = await prisma.city.create({ data: { id, name } });
+  const created = await prisma.city.create({ data: { id, name, nameRu: nameRu || null } });
   return json({ city: created }, 201);
 }

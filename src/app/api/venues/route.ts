@@ -20,8 +20,11 @@ function normalizeVenue(v: any) {
     id: v.id,
     cityId: v.cityId,
     name: v.name,
+    nameRu: (v as any).nameRu ?? "",
     description: v.description ?? "",
+    descriptionRu: (v as any).descriptionRu ?? "",
     address: (v as any).address ?? "",
+    addressRu: (v as any).addressRu ?? "",
     deliveryMinutes: Number((v as any).deliveryMinutes ?? 50) || 50,
     slug: v.slug,
     photoUrl: v.photoUrl ?? "",
@@ -47,8 +50,11 @@ export async function POST(req: Request) {
   const body = await readBody(req);
   const cityId = (body?.cityId ?? "").toString();
   const name = (body?.name ?? "").toString().trim();
+  const nameRu = (body?.nameRu ?? "").toString().trim();
   const description = (body?.description ?? "").toString();
+  const descriptionRu = (body?.descriptionRu ?? "").toString();
   const address = (body?.address ?? "").toString();
+  const addressRu = (body?.addressRu ?? "").toString();
   const deliveryMinutes = Number(body?.deliveryMinutes ?? 50) || 50;
   const slug = (body?.slug ?? "").toString().trim();
   if (!cityId) return badRequest("cityId обовʼязковий");
@@ -62,7 +68,21 @@ export async function POST(req: Request) {
 
   try {
     const created = await prisma.venue.create({
-      data: { cityId, name, description, address, deliveryMinutes, slug, photoUrl, venueTypeIds, cuisineTypeIds, schedule },
+      data: {
+        cityId,
+        name,
+        nameRu: nameRu || null,
+        description,
+        descriptionRu: descriptionRu || null,
+        address,
+        addressRu: addressRu || null,
+        deliveryMinutes,
+        slug,
+        photoUrl,
+        venueTypeIds,
+        cuisineTypeIds,
+        schedule,
+      },
     });
     return json({ venue: normalizeVenue(created) }, 201);
   } catch (e: any) {

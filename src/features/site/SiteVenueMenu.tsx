@@ -17,6 +17,7 @@ import { cityHeroBg, venueCover } from "@/lib/site/siteMedia";
 import type { ModifierGroup, ModifierOption } from "@/store/menu";
 import type { CartModifierSelection } from "@/store/cart";
 import IngredientsPickerModal from "@/features/site/IngredientsPickerModal";
+import { pickText } from "@/lib/i18n/pickText";
 
 type Props = { cityId: string; venueSlug: string };
 
@@ -260,6 +261,10 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
     setQty((prev) => ({ ...prev, [id]: Math.max(0, next) }));
 
   const cover = venue?.photoUrl?.trim() ? venue.photoUrl : venue ? venueCover(venue.name) : "";
+  const cityName = city ? pickText({ lang, ua: city.name, ru: (city as any).nameRu }) : "";
+  const venueName = venue ? pickText({ lang, ua: venue.name, ru: (venue as any).nameRu }) : "";
+  const venueDesc = venue ? pickText({ lang, ua: venue.description, ru: (venue as any).descriptionRu }) : "";
+  const venueAddress = venue ? pickText({ lang, ua: (venue as any).address, ru: (venue as any).addressRu }) : "";
   const rating = venue ? venueRating(venue.id) : 0;
   const eta = venue ? (Number((venue as any).deliveryMinutes ?? 50) || 50) : 0;
 
@@ -283,9 +288,9 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
     addItem({
       cityId,
       venueId: venue.id,
-      venueName: venue.name,
+      venueName: venueName || venue.name,
       dishId: dish.id,
-      name: dish.name,
+      name: pickText({ lang, ua: dish.name, ru: (dish as any).nameRu }) || dish.name,
       photoUrl: dish.photoUrl?.trim() ? dish.photoUrl : "",
       basePrice: Number(basePriceOverride ?? dish.price ?? 0),
       qty: qtyCount,
@@ -346,7 +351,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
           // Меню: робимо фото компактнішим (менша "довжина" героя)
           height: "clamp(220px, 24vw, 280px)",
           borderBottom: "1px solid rgba(31,41,55,0.08)",
-          backgroundImage: `url(${cover || cityHeroBg(city.name)})`,
+          backgroundImage: `url(${cover || cityHeroBg(cityName || city.name)})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
           position: "relative",
@@ -374,10 +379,10 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
               href={`/${lang}/categories`}
               style={{ textDecoration: "none", color: "rgba(255,255,255,0.86)" }}
             >
-              {city.name}
+              {cityName || city.name}
             </Link>
             <span style={{ opacity: 0.6 }}> / </span>
-            <span style={{ opacity: 0.98 }}>{venue.name}</span>
+            <span style={{ opacity: 0.98 }}>{venueName || venue.name}</span>
           </div>
 
           <div
@@ -392,7 +397,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
               textShadow: "0 10px 30px rgba(0,0,0,0.35)",
             }}
           >
-            {venue.name}
+            {venueName || venue.name}
           </div>
 
           <div style={{ marginTop: 14, display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -455,7 +460,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
                 <PinIcon size={18} /> {t('address')}
               </div>
               <div style={{ marginTop: 10, fontWeight: 950, fontSize: 20 }}>
-                {(venue as any).address || "Адресу буде додано"}
+                {venueAddress || (venue as any).address || "Адресу буде додано"}
               </div>
             </div>
 
@@ -485,7 +490,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
             <div className="infoCard">
               <div style={{ opacity: 0.75, fontWeight: 950 }}>{t('description')}</div>
               <div style={{ marginTop: 10, fontWeight: 850, fontSize: 16, lineHeight: 1.35 }}>
-                {venue.description || t('venue_desc_fallback')}
+                {venueDesc || venue.description || t('venue_desc_fallback')}
               </div>
             </div>
           </div>
@@ -542,7 +547,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
                 }}
                 onClick={() => setActiveCatId(c.id)}
               >
-                {c.name}
+                {pickText({ lang, ua: c.name, ru: (c as any).nameRu }) || c.name}
               </Link>
             ) : (
               <button
@@ -558,7 +563,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
                   cursor: "pointer",
                 }}
               >
-                {c.name}
+                {pickText({ lang, ua: c.name, ru: (c as any).nameRu }) || c.name}
               </button>
             );
           })}
@@ -573,7 +578,7 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
 
                   <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 900, fontSize: 34, letterSpacing: "-0.02em" }}>
-                    {c.name}
+                    {pickText({ lang, ua: c.name, ru: (c as any).nameRu }) || c.name}
                   </div>
                 </div>
 
@@ -594,8 +599,8 @@ export default function SiteVenueMenu({ cityId, venueSlug }: Props) {
                           />
 
                           <div className="dishMeta">
-                            <div className="dishTitle">{d.name}</div>
-                            <div className="dishDesc">{d.description || t("dish_desc_fallback")}</div>
+                            <div className="dishTitle">{pickText({ lang, ua: d.name, ru: (d as any).nameRu }) || d.name}</div>
+                            <div className="dishDesc">{pickText({ lang, ua: d.description, ru: (d as any).descriptionRu }) || d.description || t("dish_desc_fallback")}</div>
                             {varGroups.length ?  null : (
                             <div className="dishPrice">
                               <Money value={d.price} />

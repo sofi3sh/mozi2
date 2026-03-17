@@ -3,7 +3,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { api } from "@/lib/apiClient";
 
-export type CatalogItem = { id: string; name: string };
+export type CatalogItem = { id: string; name: string; nameRu?: string };
 type Kind = "venueType" | "cuisineType";
 
 type Ctx = {

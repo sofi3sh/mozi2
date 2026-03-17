@@ -17,6 +17,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (name.length < 2) return badRequest("Назва міста занадто коротка");
     data.name = name;
   }
+  if (body.nameRu !== undefined) {
+    const nameRu = String(body.nameRu ?? "").trim();
+    data.nameRu = nameRu || null;
+  }
   if (typeof body.photoUrl === "string" || body.photoUrl === null) {
     data.photoUrl = body.photoUrl ? body.photoUrl.toString().trim() : null;
   }

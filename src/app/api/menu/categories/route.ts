@@ -10,6 +10,7 @@ export async function POST(req: Request) {
   const cityId = String(body.cityId ?? "");
   const venueId = String(body.venueId ?? "");
   const name = String(body.name ?? "").trim();
+  const nameRu = String(body.nameRu ?? "").trim();
   const sort = Number.isFinite(Number(body.sort)) ? Math.round(Number(body.sort)) : 0;
   const photoUrl = body.photoUrl == null ? null : String(body.photoUrl);
 
@@ -21,6 +22,7 @@ export async function POST(req: Request) {
       cityId,
       venueId,
       name,
+      nameRu: nameRu || null,
       sort,
       photoUrl,
     },

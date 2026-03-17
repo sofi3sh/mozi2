@@ -22,7 +22,12 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (name.length < 2) return badRequest("Назва страви занадто коротка");
     patch.name = name;
   }
+  if (body.nameRu !== undefined) {
+    const nameRu = String(body.nameRu ?? "").trim();
+    patch.nameRu = nameRu || null;
+  }
   if (body.description != null) patch.description = String(body.description);
+  if (body.descriptionRu !== undefined) patch.descriptionRu = String(body.descriptionRu ?? "") || null;
   if (body.price != null) patch.price = Math.max(0, toInt(body.price, 0));
   if (body.photoUrl !== undefined) patch.photoUrl = body.photoUrl ? String(body.photoUrl) : null;
   if (body.isStopped != null) patch.isStopped = Boolean(body.isStopped);

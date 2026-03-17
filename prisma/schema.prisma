@@ -10,6 +10,7 @@ datasource db {
 model City {
   id        String   @id
   name      String
+  nameRu    String?  @db.Text
   photoUrl  String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -21,6 +22,7 @@ model CatalogItem {
   id        String   @id @default(cuid())
   kind      String   // "venueType" | "cuisineType"
   name      String
+  nameRu    String?  @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -32,8 +34,11 @@ model Venue {
   id            String   @id @default(cuid())
   cityId        String
   name          String
+  nameRu        String?  @db.Text
   description   String   @db.Text
+  descriptionRu String?  @db.Text
   address       String?  @db.Text
+  addressRu     String?  @db.Text
   deliveryMinutes Int    @default(50)
   slug          String
   photoUrl      String?  @db.Text
@@ -59,6 +64,7 @@ model MenuCategory {
   cityId    String
   venueId   String
   name      String
+  nameRu    String?  @db.Text
   sort      Int      @default(0)
   photoUrl  String?  @db.Text
   createdAt DateTime @default(now())
@@ -75,7 +81,9 @@ model Dish {
   venueId         String
   categoryId      String
   name            String
+  nameRu          String?  @db.Text
   description     String   @db.Text
+  descriptionRu   String?  @db.Text
   price           Int
   photoUrl        String?  @db.Text
   isStopped       Boolean  @default(false)

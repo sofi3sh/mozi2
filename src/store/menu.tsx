@@ -13,6 +13,7 @@ export type MenuCategory = {
   cityId: string;
   venueId: string;
   name: string;
+  nameRu?: string;
   sort: number;
   photoUrl?: string | null;
   slug?: string;
@@ -24,7 +25,9 @@ export type Dish = {
   venueId: string;
   categoryId: string;
   name: string;
+  nameRu?: string;
   description: string;
+  descriptionRu?: string;
   price: number;
   photoUrl?: string;
   isStopped?: boolean;
@@ -74,7 +77,7 @@ type Ctx = {
 
   getCategories: (cityId: string, venueId: string) => MenuCategory[];
   addCategory: (input: AddCategoryInput) => Promise<MenuCategory | null>;
-  updateCategory: (id: string, patch: Partial<Pick<MenuCategory, "name" | "sort" | "photoUrl">>) => Promise<void>;
+  updateCategory: (id: string, patch: Partial<Pick<MenuCategory, "name" | "nameRu" | "sort" | "photoUrl">>) => Promise<void>;
   removeCategory: (id: string) => Promise<void>;
 
   getDishes: (cityId: string, venueId: string) => Dish[];
@@ -112,6 +115,7 @@ function normalizeCategory(c: any): MenuCategory {
     cityId: String(c?.cityId ?? ""),
     venueId: String(c?.venueId ?? ""),
     name,
+    nameRu: String(c?.nameRu ?? ""),
     sort: toNum(c?.sort, 10),
     photoUrl: c?.photoUrl ?? null,
     slug,
@@ -126,7 +130,9 @@ function normalizeDish(d: any): Dish {
     venueId: String(d?.venueId ?? ""),
     categoryId: String(d?.categoryId ?? ""),
     name: String(d?.name ?? ""),
+    nameRu: String(d?.nameRu ?? ""),
     description: String(d?.description ?? ""),
+    descriptionRu: String(d?.descriptionRu ?? ""),
     price: Math.max(0, Math.round(toNum(d?.price, 0))),
     photoUrl: d?.photoUrl ? String(d.photoUrl) : "",
     isStopped: Boolean(d?.isStopped ?? false),

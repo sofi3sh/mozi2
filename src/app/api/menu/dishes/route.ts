@@ -16,7 +16,9 @@ export async function POST(req: Request) {
   const venueId = String(body.venueId ?? "");
   const categoryId = String(body.categoryId ?? "");
   const name = String(body.name ?? "").trim();
+  const nameRu = String(body.nameRu ?? "").trim();
   const description = String(body.description ?? "");
+  const descriptionRu = String(body.descriptionRu ?? "");
   const price = Math.max(0, toInt(body.price, 0));
   const photoUrl = body.photoUrl ? String(body.photoUrl) : null;
   const isStopped = Boolean(body.isStopped ?? false);
@@ -32,7 +34,9 @@ export async function POST(req: Request) {
       venueId,
       categoryId,
       name,
+      nameRu: nameRu || null,
       description,
+      descriptionRu: descriptionRu || null,
       price,
       photoUrl,
       isStopped,

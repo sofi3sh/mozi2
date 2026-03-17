@@ -17,6 +17,7 @@ import { ArrowRightIcon, ClockIcon, StarIcon } from "@/components/site/SiteIcons
 import { categoryCover, cityHeroBg, venueCover } from "@/lib/site/siteMedia";
 import { slugify } from "@/lib/slugify";
 import { openStatus } from "@/lib/site/openStatus";
+import { pickText } from "@/lib/i18n/pickText";
 
 function clamp2(text: string) {
   return (
@@ -68,6 +69,7 @@ export default function SiteCategories() {
   // Якщо місто визначене піддоменом — пріоритетно беремо його
   const cityId = hostCityId || qsCity || lastCityId || "";
   const city = useMemo(() => cities.find((c) => c.id === cityId) ?? null, [cities, cityId]);
+  const cityName = useMemo(() => (city ? pickText({ lang, ua: city.name, ru: (city as any).nameRu }) : ""), [city, lang]);
 
   const initialVenueTypeId = useMemo(() => {
     const fromMulti = qsVenueTypes.split(",").map((x) => x.trim()).filter(Boolean)[0] || "";
@@ -97,13 +99,19 @@ export default function SiteCategories() {
     const list = Array.from(counts.entries())
       .map(([id, count]) => {
         const item = venueTypes.find((x) => x.id === id);
-        return item ? { id, name: item.name as string, count } : null;
+        return item
+          ? {
+              id,
+              name: pickText({ lang, ua: item.name as string, ru: (item as any).nameRu }),
+              count,
+            }
+          : null;
       })
       .filter(Boolean) as Array<{ id: string; name: string; count: number }>;
 
-    list.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "uk"));
+    list.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, lang === "ru" ? "ru" : "uk"));
     return list.slice(0, 9);
-  }, [cityVenues, venueTypes]);
+  }, [cityVenues, venueTypes, lang]);
 
   const venuesBySelectedVenueType = useMemo(() => {
     if (!selectedVenueTypeId) return cityVenues;
@@ -181,7 +189,7 @@ export default function SiteCategories() {
           <div style={{ fontSize: 14, opacity: 0.7, fontWeight: 800 }}>
             <Link href={`/${lang}/categories`} style={{ textDecoration: "none", opacity: 0.85 }}>{t('home')}</Link>
             <span style={{ opacity: 0.5 }}> / </span>
-            <span style={{ opacity: 0.95 }}>{city.name}</span>
+            <span style={{ opacity: 0.95 }}>{cityName || city.name}</span>
           </div>
 
           <h1
@@ -195,7 +203,7 @@ export default function SiteCategories() {
               color: "#111827",
             }}
           >
-            {city.name}
+            {cityName || city.name}
           </h1>
 
           <div style={{ marginTop: 12, fontSize: 16, opacity: 0.72, fontWeight: 700 }}>
@@ -392,7 +400,9 @@ export default function SiteCategories() {
             {recommended.map((v) => {
               const rating = venueRating(v.id);
               const eta = Number((v as any).deliveryMinutes ?? 50) || 50;
-              const cover = v.photoUrl?.trim() ? v.photoUrl : venueCover(v.name);
+              const vName = pickText({ lang, ua: (v as any).name, ru: (v as any).nameRu });
+              const vDesc = pickText({ lang, ua: (v as any).description, ru: (v as any).descriptionRu });
+              const cover = v.photoUrl?.trim() ? v.photoUrl : venueCover(vName || v.name);
               const st = openStatus(v.schedule);
               return (
                 <Link
@@ -487,11 +497,11 @@ export default function SiteCategories() {
 
                   <div style={{ padding: "18px 18px 16px" }}>
                     <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 900, fontSize: 28, letterSpacing: "-0.01em" }}>
-                      {v.name}
+                      {vName || v.name}
                     </div>
 
                     <div style={{ marginTop: 10, fontSize: 14, opacity: 0.72, fontWeight: 700 }}>
-                      {clamp2(v.description || "Опис буде додано пізніше.")}
+                      {clamp2(vDesc || v.description || "Опис буде додано пізніше.")}
                     </div>
 
                     <div style={{ marginTop: 16, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
@@ -501,7 +511,7 @@ export default function SiteCategories() {
                         </span>
                         {seoEnabled && !st.isOpen ? `Зачинено • ${st.rangeText || "—"}` : `~${eta} хв.`}
                       </div>
-                      <div style={{ opacity: 0.62, fontWeight: 800 }}>{city.name}</div>
+                      <div style={{ opacity: 0.62, fontWeight: 800 }}>{cityName || city.name}</div>
                     </div>
                   </div>
                 </Link>

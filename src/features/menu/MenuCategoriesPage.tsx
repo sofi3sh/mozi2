@@ -13,6 +13,7 @@ export default function MenuCategoriesPage({ cityId, venueId }: { cityId: string
   const dishes = getDishes(cityId, venueId);
 
   const [name, setName] = useState("");
+  const [nameRu, setNameRu] = useState("");
   const [sort, setSort] = useState("10");
 
   const canAdd = useMemo(() => name.trim().length >= 2, [name]);
@@ -29,9 +30,11 @@ export default function MenuCategoriesPage({ cityId, venueId }: { cityId: string
       cityId,
       venueId,
       name: name.trim(),
+      nameRu: nameRu.trim(),
       sort: Number(sort || 0),
     });
     setName("");
+    setNameRu("");
     setSort("10");
   }
 
@@ -52,6 +55,10 @@ export default function MenuCategoriesPage({ cityId, venueId }: { cityId: string
             <div className="ui-field">
               <div className="ui-label">Назва</div>
               <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Напр. Чебуреки" />
+            </div>
+            <div className="ui-field">
+              <div className="ui-label">Назва (RU)</div>
+              <Input value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="Напр. Чебуреки" />
             </div>
             <div className="ui-field">
               <div className="ui-label">Сортування</div>
@@ -107,11 +114,13 @@ function CategoryRow({
 }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(category.name);
+  const [nameRu, setNameRu] = useState(category.nameRu ?? "");
   const [sort, setSort] = useState(String(category.sort ?? 0));
 
   function save() {
     onUpdate(category.id, {
       name: name.trim(),
+      nameRu: nameRu.trim(),
       sort: Number(sort || 0),
     });
     setEditing(false);
@@ -122,13 +131,17 @@ function CategoryRow({
       <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 12, alignItems: "start" }}>
         <div style={{ minWidth: 0 }}>
           {editing ? (
-            <div className="ui-grid" style={{ gridTemplateColumns: "1fr 140px", gap: 10 }}>
+            <div className="ui-grid" style={{ gridTemplateColumns: "1fr 1fr 140px", gap: 10 }}>
               <Input value={name} onChange={(e) => setName(e.target.value)} />
+              <Input value={nameRu} onChange={(e) => setNameRu(e.target.value)} />
               <Input type="number" value={sort} onChange={(e) => setSort(e.target.value)} />
             </div>
           ) : (
             <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap" }}>
-              <div style={{ fontWeight: 950, letterSpacing: "-0.01em" }}>{category.name}</div>
+              <div style={{ fontWeight: 950, letterSpacing: "-0.01em" }}>
+                {category.name}
+                {category.nameRu ? <span style={{ marginLeft: 8, opacity: 0.7 }}>RU: {category.nameRu}</span> : null}
+              </div>
               <Badge variant="default">sort: {category.sort ?? 0}</Badge>
               <Badge variant={dishesCount ? "default" : "stop"}>{dishesCount} страв</Badge>
             </div>

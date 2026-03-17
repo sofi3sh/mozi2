@@ -43,8 +43,11 @@ export type Venue = {
   id: string;
   cityId: string;
   name: string;
+  nameRu?: string;
   description: string;
+  descriptionRu?: string;
   address: string;
+  addressRu?: string;
   deliveryMinutes: number;
   slug: string;
   photoUrl: string;
@@ -100,8 +103,11 @@ export function VenuesProvider({ children }: { children: React.ReactNode }) {
           id: String(v.id),
           cityId: String(v.cityId),
           name: String(v.name ?? ""),
+          nameRu: String(v.nameRu ?? ""),
           description: String(v.description ?? ""),
+          descriptionRu: String(v.descriptionRu ?? ""),
           address: String(v.address ?? ""),
+          addressRu: String(v.addressRu ?? ""),
           deliveryMinutes: Number(v.deliveryMinutes ?? 50) || 50,
           slug: String(v.slug ?? ""),
           photoUrl: String(v.photoUrl ?? ""),

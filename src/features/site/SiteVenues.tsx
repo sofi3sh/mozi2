@@ -17,6 +17,7 @@ import { ClockIcon, StarIcon } from "@/components/site/SiteIcons";
 import { cityHeroBg, venueCover } from "@/lib/site/siteMedia";
 import { openStatus } from "@/lib/site/openStatus";
 import { slugify } from "@/lib/slugify";
+import { pickText } from "@/lib/i18n/pickText";
 
 function seeded(n: string) {
   let h = 0;
@@ -168,6 +169,7 @@ export default function SiteVenues() {
   // Якщо місто визначене піддоменом або в фільтрах — пріоритетно беремо його
   const cityId = hostCityId || cityFromHash || qsCity || lastCityId || "";
   const city = useMemo(() => cities.find((c) => c.id === cityId) ?? null, [cities, cityId]);
+  const cityName = useMemo(() => (city ? pickText({ lang, ua: city.name, ru: (city as any).nameRu }) : ""), [city, lang]);
 
   // Не зберігаємо місто автоматично при завантаженні сторінки.
 
@@ -189,9 +191,12 @@ export default function SiteVenues() {
       availableVenueTypeIds
         .map((id) => venueTypes.find((x) => x.id === id))
         .filter(Boolean)
-        .map((x) => ({ id: (x as any).id as string, name: (x as any).name as string }))
-        .sort((a, b) => a.name.localeCompare(b.name, "uk")),
-    [availableVenueTypeIds, venueTypes]
+        .map((x) => ({
+          id: (x as any).id as string,
+          name: pickText({ lang, ua: (x as any).name as string, ru: (x as any).nameRu as any }),
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name, lang === "ru" ? "ru" : "uk")),
+    [availableVenueTypeIds, venueTypes, lang]
   );
 
   const cuisineOptions = useMemo(
@@ -199,9 +204,12 @@ export default function SiteVenues() {
       availableCuisineTypeIds
         .map((id) => cuisineTypes.find((x) => x.id === id))
         .filter(Boolean)
-        .map((x) => ({ id: (x as any).id as string, name: (x as any).name as string }))
-        .sort((a, b) => a.name.localeCompare(b.name, "uk")),
-    [availableCuisineTypeIds, cuisineTypes]
+        .map((x) => ({
+          id: (x as any).id as string,
+          name: pickText({ lang, ua: (x as any).name as string, ru: (x as any).nameRu as any }),
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name, lang === "ru" ? "ru" : "uk")),
+    [availableCuisineTypeIds, cuisineTypes, lang]
   );
 
   const venueTypeSlugToId = useMemo(() => {
@@ -402,7 +410,7 @@ export default function SiteVenues() {
               color: "#111827",
             }}
           >
-            {t('all_venues')} — {city.name}
+            {t('all_venues')} — {cityName || city.name}
           </div>
 
           <div style={{ marginTop: 10, display: "flex", justifyContent: "space-between", gap: 12, alignItems: "end", flexWrap: "wrap" }}>
@@ -532,6 +540,8 @@ export default function SiteVenues() {
               const rating = venueRating(v.id);
               const eta = Number((v as any).deliveryMinutes ?? 50) || 50;
               const st = openStatus(v.schedule as any);
+              const vName = pickText({ lang, ua: (v as any).name, ru: (v as any).nameRu });
+              const vDesc = pickText({ lang, ua: (v as any).description, ru: (v as any).descriptionRu });
 
               const tag1 = tagNameFromIds(v.venueTypeIds || [], venueTypeOptions);
               const tag2 = tagNameFromIds(v.cuisineTypeIds || [], cuisineOptions);
@@ -631,11 +641,11 @@ export default function SiteVenues() {
 
                   <div style={{ padding: "18px 18px 16px" }}>
                     <div style={{ fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif", fontWeight: 900, fontSize: 28, letterSpacing: "-0.01em" }}>
-                      {v.name}
+                      {vName || v.name}
                     </div>
 
                     <div style={{ marginTop: 10, fontSize: 14, opacity: 0.72, fontWeight: 700 }}>
-                      {v.description || "Опис буде додано пізніше."}
+                      {vDesc || v.description || "Опис буде додано пізніше."}
                     </div>
 
                     <div style={{ marginTop: 16, display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
@@ -645,7 +655,7 @@ export default function SiteVenues() {
                         </span>
                         {seoEnabled && !st.isOpen ? `Зачинено • ${st.rangeText || "—"}` : `~${eta} хв.`}
                       </div>
-                      <div style={{ opacity: 0.62, fontWeight: 800 }}>{city.name}</div>
+                      <div style={{ opacity: 0.62, fontWeight: 800 }}>{cityName || city.name}</div>
                     </div>
                   </div>
                 </Link>

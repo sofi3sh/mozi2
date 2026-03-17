@@ -16,6 +16,10 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
     if (name.length < 2) return badRequest("Назва категорії занадто коротка");
     patch.name = name;
   }
+  if (body.nameRu !== undefined) {
+    const nameRu = String(body.nameRu ?? "").trim();
+    patch.nameRu = nameRu || null;
+  }
   if (body.sort != null) {
     const n = Number(body.sort);
     if (Number.isFinite(n)) patch.sort = Math.round(n);

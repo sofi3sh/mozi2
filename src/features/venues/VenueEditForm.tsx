@@ -19,8 +19,11 @@ export default function VenueEditForm({ cityId, venueId }: { cityId: string; ven
   const venue = getById(venueId);
 
   const [name, setName] = useState("");
+  const [nameRu, setNameRu] = useState("");
   const [description, setDescription] = useState("");
+  const [descriptionRu, setDescriptionRu] = useState("");
   const [address, setAddress] = useState("");
+  const [addressRu, setAddressRu] = useState("");
   const [deliveryMinutes, setDeliveryMinutes] = useState<number>(50);
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
@@ -33,8 +36,11 @@ export default function VenueEditForm({ cityId, venueId }: { cityId: string; ven
   useEffect(() => {
     if (!venue || venue.cityId !== cityId) return;
     setName(venue.name);
+    setNameRu(String((venue as any).nameRu ?? ""));
     setDescription(venue.description);
+    setDescriptionRu(String((venue as any).descriptionRu ?? ""));
     setAddress((venue as any).address ?? "");
+    setAddressRu(String((venue as any).addressRu ?? ""));
     setDeliveryMinutes(Number((venue as any).deliveryMinutes ?? 50) || 50);
     setSlug(venue.slug);
     setPhotoUrl(venue.photoUrl || "");
@@ -87,8 +93,11 @@ export default function VenueEditForm({ cityId, venueId }: { cityId: string; ven
 
     updateVenue(venueId, {
       name: name.trim(),
+      nameRu: nameRu.trim(),
       description: description.trim(),
+      descriptionRu: descriptionRu.trim(),
       address: address.trim(),
+      addressRu: addressRu.trim(),
       deliveryMinutes,
       slug: slug.trim(),
       photoUrl: photoUrl || "",
@@ -137,6 +146,10 @@ export default function VenueEditForm({ cityId, venueId }: { cityId: string; ven
             <label style={labelStyle}>Назва закладу</label>
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Напр. Піцца Tomato" />
           </div>
+          <div style={{ display: "grid", gap: 8 }}>
+            <label style={labelStyle}>Назва (RU)</label>
+            <Input value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="Напр. Пицца Tomato" />
+          </div>
 
           <div style={{ display: "grid", gap: 8 }}>
             <label style={labelStyle}>Slug закладу</label>
@@ -158,12 +171,20 @@ export default function VenueEditForm({ cityId, venueId }: { cityId: string; ven
           <label style={labelStyle}>Опис</label>
           <Textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4} placeholder="Короткий опис..." />
         </div>
+        <div style={{ display: "grid", gap: 8 }}>
+          <label style={labelStyle}>Опис (RU)</label>
+          <Textarea value={descriptionRu} onChange={(e) => setDescriptionRu(e.target.value)} rows={4} placeholder="Короткое описание..." />
+        </div>
 
 
         <div style={{ display: "grid", gridTemplateColumns: "1fr 220px", gap: 12, alignItems: "end" }}>
           <div style={{ display: "grid", gap: 8 }}>
             <label style={labelStyle}>Адреса</label>
             <Input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Напр. вул. Васильківська 24" />
+          </div>
+          <div style={{ display: "grid", gap: 8 }}>
+            <label style={labelStyle}>Адреса (RU)</label>
+            <Input value={addressRu} onChange={(e) => setAddressRu(e.target.value)} placeholder="Напр. ул. Васильковская 24" />
           </div>
 
           <div style={{ display: "grid", gap: 8 }}>

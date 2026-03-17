@@ -7,6 +7,7 @@ import { useSettings } from "@/store/settings";
 export type City = {
   id: string;
   name: string;
+  nameRu?: string | null;
   photoUrl?: string | null;
 };
 
@@ -35,8 +36,8 @@ type Ctx = {
    */
   navigateToCitySubdomain: (cityId: string, opts?: { preservePath?: boolean; fallbackPath?: string }) => void;
 
-  addCity: (name: string) => Promise<City | null>;
-  renameCity: (id: string, name: string) => Promise<void>;
+  addCity: (name: string, opts?: { nameRu?: string }) => Promise<City | null>;
+  renameCity: (id: string, name: string, opts?: { nameRu?: string }) => Promise<void>;
   setCityPhoto: (id: string, photoUrl: string | null) => Promise<void>;
   removeCity: (id: string) => Promise<void>;
 };
@@ -325,18 +326,24 @@ export function CityScopeProvider({ children }: { children: React.ReactNode }) {
 
       navigateToCitySubdomain,
 
-      addCity: async (name: string) => {
+      addCity: async (name: string, opts?: { nameRu?: string }) => {
         const nm = name.trim();
         if (nm.length < 2) return null;
-        const res = await api<{ city: City }>("/api/cities", { method: "POST", body: JSON.stringify({ name: nm }) });
+        const res = await api<{ city: City }>("/api/cities", {
+          method: "POST",
+          body: JSON.stringify({ name: nm, nameRu: (opts?.nameRu ?? "").toString() }),
+        });
         setCities((prev) => [...prev, res.city].sort((a, b) => a.name.localeCompare(b.name, "uk")));
         if (!currentCityId) setCurrentCityId(res.city.id);
         return res.city;
       },
-      renameCity: async (id: string, name: string) => {
+      renameCity: async (id: string, name: string, opts?: { nameRu?: string }) => {
         const nm = name.trim();
         if (nm.length < 2) return;
-        const res = await api<{ city: City }>(`/api/cities/${id}`, { method: "PATCH", body: JSON.stringify({ name: nm }) });
+        const res = await api<{ city: City }>(`/api/cities/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify({ name: nm, nameRu: (opts?.nameRu ?? "").toString() }),
+        });
         setCities((prev) => prev.map((c) => (c.id === id ? res.city : c)).sort((a, b) => a.name.localeCompare(b.name, "uk")));
       },
       setCityPhoto: async (id: string, photoUrl: string | null) => {

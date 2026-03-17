@@ -15,6 +15,7 @@ export default function CitiesPage() {
   const { cities, addCity, renameCity, removeCity, setCityPhoto } = useCityScope();
 
   const [name, setName] = useState("");
+  const [nameRu, setNameRu] = useState("");
   const canCreate = useMemo(() => name.trim().length >= 2, [name]);
 
   const [cropCityId, setCropCityId] = useState<string | null>(null);
@@ -25,9 +26,10 @@ export default function CitiesPage() {
   async function create() {
     const nm = name.trim();
     if (!nm) return;
-    const created = await addCity(nm);
+    const created = await addCity(nm, { nameRu: nameRu.trim() });
     if (!created) return;
     setName("");
+    setNameRu("");
   }
 
   async function onCropped(file: File) {
@@ -79,6 +81,10 @@ export default function CitiesPage() {
                 <div className="ui-label">Назва міста</div>
                 <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Напр. Дніпро" />
               </div>
+              <div className="ui-field">
+                <div className="ui-label">Назва міста (RU)</div>
+                <Input value={nameRu} onChange={(e) => setNameRu(e.target.value)} placeholder="Напр. Днепр" />
+              </div>
               <div className="ui-actions">
                 <Button type="button" disabled={!canCreate} onClick={create}>
                   Додати місто
@@ -98,7 +104,7 @@ export default function CitiesPage() {
                   <CityRow
                     key={c.id}
                     city={c}
-                    onRename={(name) => renameCity(c.id, name)}
+                    onRename={(name, nameRu) => renameCity(c.id, name, { nameRu })}
                     onPhoto={(file) => {
                       setCropCityId(c.id);
                       setCropFile(file);
@@ -136,19 +142,20 @@ function CityRow({
   onRemovePhoto,
   onRemove,
 }: {
-  city: { id: string; name: string; photoUrl?: string | null };
-  onRename: (name: string) => void;
+  city: { id: string; name: string; nameRu?: string | null; photoUrl?: string | null };
+  onRename: (name: string, nameRu: string) => void;
   onPhoto: (file: File) => void;
   onRemovePhoto: () => void;
   onRemove: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(city.name);
+  const [nameRu, setNameRu] = useState(city.nameRu ?? "");
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   return (
     <div className="ui-row">
-      <div style={{ display: "grid", gridTemplateColumns: "auto 1fr auto", gap: 12, alignItems: "center" }}>
+      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
         <div style={{ width: 56, height: 56, borderRadius: 14, border: "1px solid var(--border)", background: "var(--panel-2)", overflow: "hidden", display: "grid", placeItems: "center" }}>
           {city.photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
@@ -158,13 +165,34 @@ function CityRow({
           )}
         </div>
 
-        <div style={{ minWidth: 0 }}>
+        <div style={{ minWidth: 320, flex: "1 1 420px" }}>
           <div className="ui-label">Місто</div>
-          {editing ? <Input value={name} onChange={(e) => setName(e.target.value)} /> : <div style={{ fontWeight: 950 }}>{city.name}</div>}
+          {editing ? (
+            <div className="ui-grid" style={{ gridTemplateColumns: "1fr", gap: 10 }}>
+              <div className="ui-field" style={{ margin: 0 }}>
+                <div className="ui-label">UA</div>
+                <Input value={name} onChange={(e) => setName(e.target.value)} style={{ width: "100%" }} />
+              </div>
+              <div className="ui-field" style={{ margin: 0 }}>
+                <div className="ui-label">RU</div>
+                <Input
+                  value={nameRu}
+                  onChange={(e) => setNameRu(e.target.value)}
+                  placeholder="Напр. Славянск"
+                  style={{ width: "100%" }}
+                />
+              </div>
+            </div>
+          ) : (
+            <div style={{ fontWeight: 950 }}>
+              {city.name}
+              {city.nameRu ? <span style={{ marginLeft: 8, opacity: 0.7 }}>RU: {city.nameRu}</span> : null}
+            </div>
+          )}
           <div className="ui-subtitle" style={{ marginTop: 6 }}>ID: <b>{city.id}</b></div>
         </div>
 
-        <div className="ui-actions">
+        <div className="ui-actions" style={{ flex: "0 0 auto", marginLeft: "auto" }}>
           <input
             ref={fileRef}
             type="file"
@@ -203,7 +231,7 @@ function CityRow({
               <Button
                 type="button"
                 onClick={() => {
-                  onRename(name);
+                  onRename(name, nameRu);
                   setEditing(false);
                 }}
                 disabled={name.trim().length < 2}

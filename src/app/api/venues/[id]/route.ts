@@ -20,8 +20,11 @@ function normalizeVenue(v: any) {
     id: v.id,
     cityId: v.cityId,
     name: v.name,
+    nameRu: (v as any).nameRu ?? "",
     description: v.description ?? "",
+    descriptionRu: (v as any).descriptionRu ?? "",
     address: (v as any).address ?? "",
+    addressRu: (v as any).addressRu ?? "",
     deliveryMinutes: Number((v as any).deliveryMinutes ?? 50) || 50,
     slug: v.slug,
     photoUrl: v.photoUrl ?? "",
@@ -46,8 +49,11 @@ export async function PATCH(req: Request, { params }: { params: Promise<{ id: st
   // Дозволяємо оновлювати тільки whitelist полів
   const data: any = {};
   if ("name" in body) data.name = String(body.name ?? "");
+  if ("nameRu" in body) data.nameRu = String(body.nameRu ?? "") || null;
   if ("description" in body) data.description = String(body.description ?? "");
+  if ("descriptionRu" in body) data.descriptionRu = String(body.descriptionRu ?? "") || null;
   if ("address" in body) data.address = String(body.address ?? "");
+  if ("addressRu" in body) data.addressRu = String(body.addressRu ?? "") || null;
   if ("deliveryMinutes" in body) data.deliveryMinutes = Number(body.deliveryMinutes ?? 50) || 50;
   if ("slug" in body) data.slug = String(body.slug ?? "").trim();
   if ("photoUrl" in body) data.photoUrl = String(body.photoUrl ?? "");

@@ -118,7 +118,7 @@ export default function SiteCheckoutSuccess() {
                 subtitle={
                   city
                     ? lang === "ru"
-                      ? `Город: ${city.name}`
+                      ? `Город: ${(city as any).nameRu || city.name}`
                       : `Місто: ${city.name}`
                     : undefined
                 }

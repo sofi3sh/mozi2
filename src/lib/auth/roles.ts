@@ -66,16 +66,32 @@ export const SYSTEM_ROLES: Array<{ key: string; title: string; permissions: Role
 
 /**
  * Ensures built-in/system roles exist in DB.
- * Safe to call often (uses upsert).
+ * Safe to call often:
+ * - creates missing roles
+ * - does NOT overwrite permissions for existing roles (so admin UI edits persist)
  */
 export async function ensureSystemRoles() {
   const client = (prisma as any).appRole;
   if (!client?.upsert) return; // prisma client not generated yet
   for (const r of SYSTEM_ROLES) {
-    await client.upsert({
+    const existing = await client.findUnique({ where: { key: r.key } }).catch(() => null);
+    const perms = (existing?.permissions ?? null) as any;
+    const hasValidNav = perms && typeof perms === "object" && Array.isArray(perms.nav);
+
+    if (!existing) {
+      await client.create({
+        data: { key: r.key, title: r.title, permissions: r.permissions as any, isSystem: r.isSystem },
+      });
+      continue;
+    }
+
+    await client.update({
       where: { key: r.key },
-      update: { title: r.title, permissions: r.permissions as any, isSystem: r.isSystem },
-      create: { key: r.key, title: r.title, permissions: r.permissions as any, isSystem: r.isSystem },
+      data: {
+        title: r.title,
+        isSystem: r.isSystem,
+        ...(hasValidNav ? {} : { permissions: r.permissions as any }),
+      },
     });
   }
 }

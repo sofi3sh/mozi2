@@ -248,7 +248,11 @@ export async function POST(req: Request) {
       // Validate required/min/max for groups attached to dish
       const dishGroupIds = Array.isArray(d.modifierGroupIds) ? d.modifierGroupIds.map(String) : [];
       const selectionDetails: any[] = [];
-      let deltaSum = 0;
+      // Additive modifiers (ingredients) vs full-price variations (VAR:: groups).
+      // In VAR:: groups option.priceDelta is stored as FULL price for that variation,
+      // so it must REPLACE the dish base price, not be added on top of it.
+      let additiveDeltaSum = 0;
+      let resolvedBasePrice = basePrice;
 
       for (const gid of dishGroupIds) {
         const g = groupMap.get(gid);
@@ -286,7 +290,22 @@ export async function POST(req: Request) {
           groupDelta += toInt(opt?.priceDelta, 0);
         }
 
-        deltaSum += groupDelta;
+        const groupTitle = String(g.title ?? "");
+        const normGroupTitle = groupTitle.trim();
+        const minSelect = toInt(g.minSelect, 0);
+        const maxSelect = toInt(g.maxSelect, 1);
+        // VAR:: groups are stored with FULL price in option.priceDelta.
+        // Sometimes titles may contain extra whitespace/encoding, so we detect by both prefix and constraints.
+        const isVariationGroup =
+          /^VAR::/i.test(normGroupTitle) ||
+          (Boolean(g.required) && minSelect === 1 && maxSelect === 1);
+        if (isVariationGroup) {
+          // FULL price overrides base dish price.
+          resolvedBasePrice = Math.max(0, Math.round(groupDelta));
+        } else {
+          // Regular modifiers are additive.
+          additiveDeltaSum += groupDelta;
+        }
         if (chosen.length) {
           selectionDetails.push({
             groupId: g.id,
@@ -298,7 +317,7 @@ export async function POST(req: Request) {
         }
       }
 
-      const unitPrice = Math.max(0, Math.round(basePrice + deltaSum));
+      const unitPrice = Math.max(0, Math.round(resolvedBasePrice + additiveDeltaSum));
       const lineTotal = Math.max(0, Math.round(unitPrice * it.qty));
       venueTotal += lineTotal;
 

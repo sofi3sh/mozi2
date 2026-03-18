@@ -4,3 +4,4 @@ node_modules
 .osp
 public\uploads
 .env.example
+public/uploads/

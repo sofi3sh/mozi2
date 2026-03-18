@@ -20,6 +20,7 @@ type RoleDto = {
 const NAV_SECTIONS: Array<{ key: string; label: string; group: "Загальні" | "Місто" }> = [
   { key: "home", label: "Головна", group: "Загальні" },
   { key: "cities", label: "Міста", group: "Загальні" },
+  { key: "catalog", label: "Каталог (типи)", group: "Загальні" },
   { key: "integrations", label: "Інтеграції", group: "Загальні" },
   { key: "pages", label: "Сторінки", group: "Загальні" },
   { key: "general_settings", label: "Загальні налаштування", group: "Загальні" },

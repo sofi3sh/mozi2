@@ -12,6 +12,7 @@ function allNav(cityId: string | null): NavItem[] {
   const base: NavItem[] = [
     { key: "home", label: "Головна", href: "/admin/menu" },
     { key: "cities", label: "Міста", href: "/admin/cities" },
+    { key: "catalog", label: "Каталог (типи)", href: "/admin/catalog" },
     { key: "integrations", label: "Інтеграції", href: "/admin/general/integrations" },
     { key: "pages", label: "Сторінки", href: "/admin/general/pages" },
     { key: "general_settings", label: "Загальні налаштування", href: "/admin/general/settings" },
@@ -49,6 +50,7 @@ const SYSTEM_ROLE_PERMS: Record<string, RolePermissions> = {
     nav: [
       "home",
       "cities",
+      "catalog",
       "integrations",
       "pages",
       "general_settings",
@@ -69,6 +71,7 @@ const SYSTEM_ROLE_PERMS: Record<string, RolePermissions> = {
     nav: [
       "home",
       "cities",
+      "catalog",
       "integrations",
       "pages",
       "general_settings",

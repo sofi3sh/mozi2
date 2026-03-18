@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { api } from "@/lib/apiClient";
+import { ApiError, api } from "@/lib/apiClient";
 
 export type CatalogItem = { id: string; name: string; nameRu?: string };
 type Kind = "venueType" | "cuisineType";
@@ -9,8 +9,10 @@ type Kind = "venueType" | "cuisineType";
 type Ctx = {
   venueTypes: CatalogItem[];
   cuisineTypes: CatalogItem[];
-  addVenueType: (name: string) => CatalogItem | null;
-  addCuisineType: (name: string) => CatalogItem | null;
+  addVenueType: (input: { name: string; nameRu?: string }) => CatalogItem | null;
+  addCuisineType: (input: { name: string; nameRu?: string }) => CatalogItem | null;
+  updateItem: (id: string, patch: { name?: string; nameRu?: string }) => Promise<void>;
+  removeItem: (id: string) => Promise<void>;
 };
 
 const CatalogContext = createContext<Ctx | null>(null);
@@ -41,21 +43,21 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
     refresh();
   }, []);
 
-  function add(kind: Kind, name: string): CatalogItem | null {
-    const nm = normName(name);
+  function add(kind: Kind, input: { name: string; nameRu?: string }): CatalogItem | null {
+    const nm = normName(input.name);
     if (nm.length < 2) return null;
 
     const list = kind === "venueType" ? venueTypes : cuisineTypes;
     const exists = list.find((x) => x.name.toLowerCase() === nm.toLowerCase());
     if (exists) return exists;
 
-    const created: CatalogItem = { id: uid(kind === "venueType" ? "vt" : "ct"), name: nm };
+    const created: CatalogItem = { id: uid(kind === "venueType" ? "vt" : "ct"), name: nm, nameRu: normName(input.nameRu ?? "") };
 
     if (kind === "venueType") setVenueTypes((prev) => [created, ...prev]);
     if (kind === "cuisineType") setCuisineTypes((prev) => [created, ...prev]);
 
     // persist (server can accept our id)
-    api("/api/catalog", { method: "POST", body: JSON.stringify({ id: created.id, kind, name: created.name }) })
+    api("/api/catalog", { method: "POST", body: JSON.stringify({ id: created.id, kind, name: created.name, nameRu: created.nameRu ?? "" }) })
       .then(() => refresh())
       .catch(() => {});
 
@@ -65,8 +67,26 @@ export function CatalogProvider({ children }: { children: React.ReactNode }) {
 const value: Ctx = {
   venueTypes,
   cuisineTypes,
-  addVenueType: (name) => add("venueType", name),
-  addCuisineType: (name) => add("cuisineType", name),
+  addVenueType: (input) => add("venueType", input),
+  addCuisineType: (input) => add("cuisineType", input),
+  updateItem: async (id, patch) => {
+    await api(`/api/catalog/${id}`, { method: "PATCH", body: JSON.stringify(patch) });
+    await refresh();
+  },
+  removeItem: async (id) => {
+    try {
+      await api(`/api/catalog/${id}`, { method: "DELETE" });
+      await refresh();
+    } catch (e: any) {
+      if (e instanceof ApiError && e.status === 409) {
+        if (typeof window !== "undefined") {
+          window.alert(e.message || "Неможливо видалити: тип використовується у закладах");
+        }
+        return;
+      }
+      throw e;
+    }
+  },
 };
 
   return <CatalogContext.Provider value={value}>{children}</CatalogContext.Provider>;

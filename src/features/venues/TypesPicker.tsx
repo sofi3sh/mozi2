@@ -16,9 +16,10 @@ export default function TypesPicker({
   items: Item[];
   selectedIds: string[];
   onChange: (ids: string[]) => void;
-  onAdd: (name: string) => Item | null;
+  onAdd: (input: { name: string; nameRu?: string }) => Item | null;
 }) {
   const [newName, setNewName] = useState("");
+  const [newNameRu, setNewNameRu] = useState("");
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
 
   function toggle(id: string) {
@@ -27,9 +28,10 @@ export default function TypesPicker({
   }
 
   function add() {
-    const created = onAdd(newName);
+    const created = onAdd({ name: newName, nameRu: newNameRu });
     if (!created) return;
     setNewName("");
+    setNewNameRu("");
     onChange([created.id, ...selectedIds]);
   }
 
@@ -66,16 +68,27 @@ export default function TypesPicker({
         })}
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto auto", gap: 10, alignItems: "end" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto auto", gap: 10, alignItems: "end" }}>
         <div>
-          <div style={{ color: "var(--muted)", fontSize: 12, marginBottom: 6 }}>Додати новий</div>
+          <div style={{ color: "var(--muted)", fontSize: 12, marginBottom: 6 }}>Додати новий (UA)</div>
           <Input value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="Введіть назву..." />
+        </div>
+        <div>
+          <div style={{ color: "var(--muted)", fontSize: 12, marginBottom: 6 }}>Додати новий (RU)</div>
+          <Input value={newNameRu} onChange={(e) => setNewNameRu(e.target.value)} placeholder="Введіть назву..." />
         </div>
 
         <Button type="button" onClick={add} style={{ height: 42 }}>
           Додати
         </Button>
-        <SecondaryButton type="button" onClick={() => setNewName("")} style={{ height: 42 }}>
+        <SecondaryButton
+          type="button"
+          onClick={() => {
+            setNewName("");
+            setNewNameRu("");
+          }}
+          style={{ height: 42 }}
+        >
           Очистити
         </SecondaryButton>
       </div>

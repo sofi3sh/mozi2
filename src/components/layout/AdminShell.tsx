@@ -135,6 +135,9 @@ export default function AdminShell({ children }: { children: React.ReactNode }) 
     if (p.startsWith("/admin/cities")) {
       return allowed.has("cities") ? { ok: true } : { ok: false, reason: "nav" as const };
     }
+    if (p.startsWith("/admin/catalog")) {
+      return allowed.has("catalog") ? { ok: true } : { ok: false, reason: "nav" as const };
+    }
     if (p.startsWith("/admin/general/roles")) {
       return allowed.has("users") ? { ok: true } : { ok: false, reason: "nav" as const };
     }

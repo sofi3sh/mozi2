@@ -28,6 +28,7 @@ function IconFor({ label }: { label: string }) {
   const map: Record<string, React.ComponentType<{ size?: number; className?: string }>> = {
     "Головна": HomeIcon,
     "Міста": CityIcon,
+    "Каталог (типи)": MenuIcon,
     "Дашборд міста": DashboardIcon,
     "Заклади": StoreIcon,
     "Меню": MenuIcon,

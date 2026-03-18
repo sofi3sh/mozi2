@@ -22,9 +22,14 @@ export default function HomeMenuPage() {
         description="Оберіть місто та переходьте до закладів, меню, замовлень або SEO. Все привʼязано до міста — не буде плутанини."
         actions={
           user.role !== "seo" ? (
-            <Link href="/admin/cities">
-              <Button type="button">Керувати містами</Button>
-            </Link>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <Link href="/admin/cities">
+                <Button type="button">Керувати містами</Button>
+              </Link>
+              <Link href="/admin/catalog">
+                <SecondaryButton type="button">Каталог (типи)</SecondaryButton>
+              </Link>
+            </div>
           ) : (
             <Link href={lastCityId ? `/admin/c/${lastCityId}/seo` : "/admin/menu"}>
               <Button type="button">SEO</Button>

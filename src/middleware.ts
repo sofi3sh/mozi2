@@ -77,6 +77,19 @@ function isCityRedirectExcludedPath(pathname: string) {
 export function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
 
+  // If user lands on /ua/admin/... or /ru/admin/... (e.g. via copied link),
+  // normalize to /admin/... because admin routes are not localized.
+  {
+    const m = path.match(/^\/(ua|ru)\/(admin|api|login|auth)(\/.*)?$/i);
+    if (m) {
+      const tail = (m[3] || "").toString();
+      const origin = getPublicOrigin(req);
+      const url = new URL(`/${m[2].toLowerCase()}${tail}`, origin);
+      url.search = req.nextUrl.search;
+      return NextResponse.redirect(url, 302);
+    }
+  }
+
   // --- Canonical host normalization (minimal redirects) ---
   // - www.<root>  -> <root>
   // - keep <city>.<root> as-is

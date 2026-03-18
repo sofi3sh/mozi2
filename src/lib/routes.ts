@@ -2,6 +2,7 @@ export const routes = {
   adminRoot: "/admin",
   home: "/admin/menu",
   cities: "/admin/cities",
+  catalog: "/admin/catalog",
   city: (cityId: string) => `/admin/c/${cityId}`,
   venues: (cityId: string) => `/admin/c/${cityId}/venues`,
   menuCity: (cityId: string) => `/admin/c/${cityId}/menu`,

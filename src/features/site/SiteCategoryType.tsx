@@ -16,6 +16,7 @@ import { ArrowRightIcon, ClockIcon, StarIcon } from "@/components/site/SiteIcons
 import { cityHeroBg, venueCover } from "@/lib/site/siteMedia";
 import { slugify } from "@/lib/slugify";
 import { openStatus } from "@/lib/site/openStatus";
+import { pickText } from "@/lib/i18n/pickText";
 
 type Props = { categorySlug: string };
 
@@ -68,6 +69,16 @@ export default function SiteCategoryType({ categorySlug }: Props) {
     return cityVenues.filter((v) => (v.venueTypeIds || []).includes(id));
   }, [cityVenues, venueType]);
 
+  const venueTypeName = useMemo(
+    () =>
+      pickText({
+        lang,
+        ua: (venueType as any)?.name,
+        ru: (venueType as any)?.nameRu,
+      }),
+    [lang, venueType]
+  );
+
   function onSelectCity(id: string) {
     if (!id) return;
     setCurrentCityId(id);
@@ -111,7 +122,7 @@ export default function SiteCategoryType({ categorySlug }: Props) {
         lang={lang}
         cityId="global"
         pageKey={`category:${categorySlug}`}
-        hint={venueType.name as string}
+        hint={venueTypeName}
       />
       <SiteHeader cities={cities} selectedCityId={cityId} onSelectCity={onSelectCity} />
 
@@ -135,7 +146,7 @@ export default function SiteCategoryType({ categorySlug }: Props) {
               {city.name}
             </Link>
             <span style={{ opacity: 0.5 }}> / </span>
-            <span style={{ opacity: 0.95 }}>{venueType.name as string}</span>
+            <span style={{ opacity: 0.95 }}>{venueTypeName}</span>
           </div>
 
           <h1
@@ -149,7 +160,7 @@ export default function SiteCategoryType({ categorySlug }: Props) {
               color: "#111827",
             }}
           >
-            {venueType.name as string}
+            {venueTypeName}
           </h1>
 
           <div style={{ marginTop: 12, fontSize: 16, opacity: 0.72, fontWeight: 700 }}>
@@ -181,7 +192,7 @@ export default function SiteCategoryType({ categorySlug }: Props) {
                   letterSpacing: "-0.02em",
                 }}
               >
-                {lang === "ru" ? "Заведения" : "Заклади"}: {venueType.name as string}
+                {lang === "ru" ? "Заведения" : "Заклади"}: {venueTypeName}
               </div>
               <div style={{ marginTop: 6, fontSize: 14, opacity: 0.68, fontWeight: 800 }}>
                 {city.name}

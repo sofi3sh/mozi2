@@ -8,6 +8,8 @@ import { Card, CardHeader } from "@/components/ui/Card";
 import { PageHeader, EmptyState } from "@/components/ui/Page";
 import { Badge } from "@/components/ui/Badge";
 import { Button, Input, SecondaryButton } from "@/components/ui/Input";
+import { uploadImage } from "@/lib/uploadClient";
+import { useSettings } from "@/store/settings";
 
 function normName(s: string) {
   return s.trim().replace(/\s+/g, " ");
@@ -16,6 +18,7 @@ function normName(s: string) {
 export default function AdminCatalogPage() {
   const { user } = useSession();
   const { venueTypes, cuisineTypes, addVenueType, addCuisineType, updateItem, removeItem } = useCatalog();
+  const { global, updateGlobal } = useSettings();
 
   const canManage = user.role === "owner" || user.role === "admin";
 
@@ -112,6 +115,18 @@ export default function AdminCatalogPage() {
                     badge="venueType"
                     onUpdate={(patch) => updateItem(it.id, patch)}
                     onDelete={() => removeItem(it.id)}
+                    photoUrl={(global as any)?.siteCategoryPhotos?.[it.id] || (global as any)?.siteCategoryPhotos?.[it.name] || ""}
+                    onSetPhoto={async (url) => {
+                      const prev = (global as any)?.siteCategoryPhotos ?? {};
+                      updateGlobal({ siteCategoryPhotos: { ...prev, [it.id]: url } } as any);
+                    }}
+                    onClearPhoto={() => {
+                      const prev = (global as any)?.siteCategoryPhotos ?? {};
+                      const next = { ...prev };
+                      delete next[it.id];
+                      delete next[it.name];
+                      updateGlobal({ siteCategoryPhotos: next } as any);
+                    }}
                   />
                 ))}
               </div>
@@ -160,6 +175,18 @@ export default function AdminCatalogPage() {
                     badge="cuisineType"
                     onUpdate={(patch) => updateItem(it.id, patch)}
                     onDelete={() => removeItem(it.id)}
+                    photoUrl={(global as any)?.siteCategoryPhotos?.[it.id] || (global as any)?.siteCategoryPhotos?.[it.name] || ""}
+                    onSetPhoto={async (url) => {
+                      const prev = (global as any)?.siteCategoryPhotos ?? {};
+                      updateGlobal({ siteCategoryPhotos: { ...prev, [it.id]: url } } as any);
+                    }}
+                    onClearPhoto={() => {
+                      const prev = (global as any)?.siteCategoryPhotos ?? {};
+                      const next = { ...prev };
+                      delete next[it.id];
+                      delete next[it.name];
+                      updateGlobal({ siteCategoryPhotos: next } as any);
+                    }}
                   />
                 ))}
               </div>
@@ -176,20 +203,45 @@ function CatalogRow({
   badge,
   onUpdate,
   onDelete,
+  photoUrl,
+  onSetPhoto,
+  onClearPhoto,
 }: {
   item: { id: string; name: string; nameRu?: string };
   badge: string;
   onUpdate: (patch: { name?: string; nameRu?: string }) => void;
   onDelete: () => void;
+  photoUrl: string;
+  onSetPhoto: (url: string) => void | Promise<void>;
+  onClearPhoto: () => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(item.name);
   const [nameRu, setNameRu] = useState(item.nameRu ?? "");
   const canSave = useMemo(() => normName(name).length >= 2, [name]);
 
+  const fileRef = React.useRef<HTMLInputElement | null>(null);
+
+  async function handleUpload(file: File) {
+    const url = await uploadImage(file, "categories");
+    await onSetPhoto(url);
+  }
+
   return (
     <div className="ui-row">
       <div style={{ display: "flex", gap: 12, alignItems: "start", flexWrap: "wrap" }}>
+        <div style={{ width: 120 }}>
+          <div
+            style={{
+              width: 120,
+              height: 72,
+              borderRadius: 14,
+              border: "1px solid rgba(31,41,55,0.10)",
+              background: photoUrl ? `url(${photoUrl}) center/cover no-repeat` : "linear-gradient(135deg,#e5e7eb,#9ca3af)",
+            }}
+            aria-label={`preview ${item.name}`}
+          />
+        </div>
         <div style={{ flex: "1 1 420px", minWidth: 280 }}>
           {editing ? (
             <div className="ui-grid" style={{ gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -213,6 +265,33 @@ function CatalogRow({
         </div>
 
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginLeft: "auto" }}>
+          <SecondaryButton type="button" onClick={() => fileRef.current?.click()}>
+            Фото
+          </SecondaryButton>
+          {photoUrl ? (
+            <SecondaryButton
+              type="button"
+              onClick={() => onClearPhoto()}
+              style={{ borderColor: "rgba(239,68,68,0.35)" }}
+            >
+              Очистити фото
+            </SecondaryButton>
+          ) : null}
+
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (!file) return;
+              handleUpload(file).finally(() => {
+                if (e.target) (e.target as HTMLInputElement).value = "";
+              });
+            }}
+          />
+
           {editing ? (
             <>
               <Button

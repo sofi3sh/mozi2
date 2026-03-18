@@ -292,17 +292,6 @@ export default function SiteCategories() {
                     <div style={{ position: "absolute", left: 16, right: 16, bottom: 14, textAlign: "left" }}>
                       <div
                         style={{
-                          fontSize: 11,
-                          letterSpacing: "0.18em",
-                          textTransform: "uppercase",
-                          fontWeight: 950,
-                          color: "rgba(255,255,255,0.82)",
-                        }}
-                      >
-                        Тип закладу
-                      </div>
-                      <div
-                        style={{
                           marginTop: 6,
                           fontFamily: "ui-sans-serif, Arial, Helvetica, sans-serif",
                           fontWeight: 900,
